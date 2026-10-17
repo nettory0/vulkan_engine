@@ -11,7 +11,7 @@ endif()
 
 add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
 add_compile_definitions($<$<CONFIG:Debug>:_DEBUG>)
-add_compile_definitions($<$<CONFIG:Release>:NDEBUG1>)
+add_compile_definitions($<$<CONFIG:Release>:NDEBUG>)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

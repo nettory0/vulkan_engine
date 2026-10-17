@@ -2,6 +2,7 @@
 #include <type_traits>
 #include <variant>
 #include <typeinfo>
+#include <utility>
 #include "vk_struct_builders.h"
 
 namespace vk_base
@@ -13,8 +14,17 @@ public:
 	CVkDeviceBase() = default;
 	CVkDeviceBase(const CVkDeviceBase&) = delete;
 	CVkDeviceBase& operator=(const CVkDeviceBase&) = delete;
-	CVkDeviceBase(CVkDeviceBase&&) = default;
-	CVkDeviceBase& operator=(CVkDeviceBase&&) = default;
+	// Moved-from object must not keep the handle, otherwise both destructors destroy it.
+	// Move assignment swaps, so the previously owned handle is released by `other`.
+	CVkDeviceBase(CVkDeviceBase&& other) noexcept
+		: m_pDevice(std::exchange(other.m_pDevice, VkDeviceType{}))
+	{
+	}
+	CVkDeviceBase& operator=(CVkDeviceBase&& other) noexcept
+	{
+		std::swap(m_pDevice, other.m_pDevice);
+		return *this;
+	}
 	virtual ~CVkDeviceBase() = default;
 	void setDevice(const VkDeviceType& device)
 	{
@@ -44,8 +54,17 @@ public:
 
 	CVulkanObject(const CVulkanObject&) = delete;
 	CVulkanObject& operator=(const CVulkanObject&) = delete;
-	CVulkanObject(CVulkanObject&&) = default;
-	CVulkanObject& operator=(CVulkanObject&&) = default;
+	CVulkanObject(CVulkanObject&& other) noexcept
+		: CVkDeviceBase<VkDeviceType>(std::move(other))
+		, m_handle(std::exchange(other.m_handle, VK_NULL_HANDLE))
+	{
+	}
+	CVulkanObject& operator=(CVulkanObject&& other) noexcept
+	{
+		CVkDeviceBase<VkDeviceType>::operator=(std::move(other));
+		std::swap(m_handle, other.m_handle);
+		return *this;
+	}
 
 	[[nodiscard]] VkObjectType& handle()
 	{
