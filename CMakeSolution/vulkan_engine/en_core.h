@@ -43,6 +43,7 @@ struct SInterfaceResources
 	void updateToDelete();
 	void addTextureToDelete(void*);
 	void addBufferToDelete(void*);
+	void destroy();
 };
 
 class VULKAN_ENGINE CEngine

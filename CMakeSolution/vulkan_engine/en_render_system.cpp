@@ -665,6 +665,11 @@ void CRenderSystem::createDescriptor(vk_structs::CDescriptorBufferResource& desc
 	descriptor.create(m_context.physicalDevice().handle(), m_context.logicalDevice().handle(), descriptorSetLayout, aWriteDescriptorSetIn, m_context.details());
 }
 
+void CRenderSystem::waitIdle()
+{
+	m_context.logicalDevice().waitIdle();
+}
+
 void CRenderSystem::destroy()
 {
 	m_context.logicalDevice().waitIdle();

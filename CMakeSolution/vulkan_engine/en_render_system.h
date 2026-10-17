@@ -141,6 +141,7 @@ public:
 	void createTexture(vk_structs::CTexture& texture, const commons_struct::STexture& textureSource);
 	void createGeometryBuffer(vk_structs::CBuffer& buffer, const commons_struct::SIndexedVx& m_pGeometry);
 	void createDescriptor(vk_structs::CDescriptorBufferResource& descriptor, const vk_structs::CTexture& texture);
+	void waitIdle(); //TODO: remove
 private:
 	void updateUbo(const SFrameRenderData& data, int frame);
 	void drawSkinnedMeshes(vk_base::CCommandBuffer& command, const int counter, const SFrameRenderData& frameInfo);

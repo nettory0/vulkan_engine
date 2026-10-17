@@ -39,8 +39,8 @@ void CPipelineManager::createPipeline3D(VkDevice device, VkSampleCountFlagBits m
 	VkVertexInputAttributeDescription vertexInputAttributeDescription3{vk_init::vertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(commons_struct::SVertex, texCoord))};
 
 	vk_structs::CPipelineBuilder config3d{device};
-	config3d.addShaderStageCreateInfo(0, VK_SHADER_STAGE_VERTEX_BIT, en_vk_utils::readFile2({"shaders/shader3d/shader1.vert.slang.spv"}), "main", nullptr); //shader3d //"shaders/shader.vert.spv"
-	config3d.addShaderStageCreateInfo(0, VK_SHADER_STAGE_FRAGMENT_BIT, en_vk_utils::readFile2({"shaders/shader3d/shader1.frag.slang.spv"}), "main", nullptr);
+	config3d.addShaderStageCreateInfo(0, VK_SHADER_STAGE_VERTEX_BIT, en_vk_utils::readFile2({"shaders/shader.vert.spv"}), "main", nullptr); //shader3d //"shaders/shader.vert.spv"
+	config3d.addShaderStageCreateInfo(0, VK_SHADER_STAGE_FRAGMENT_BIT, en_vk_utils::readFile2({"shaders/shader.frag.spv"}), "main", nullptr);
 	config3d.addAttributeDescription(vertexInputAttributeDescription);
 	config3d.addAttributeDescription(vertexInputAttributeDescription1);
 	config3d.addAttributeDescription(vertexInputAttributeDescription2);

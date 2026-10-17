@@ -100,6 +100,7 @@ void CSwapChainFrameSystem::destroy()
 	m_renderFrame.cleanRenderFences();
 	m_renderFrame2.cleanRenderFences();
 	m_computeFrame.cleanRenderFences();
+	m_renderFrame2.destroy();
 }
 
 vk_structs::SFrameSyncPool2& CSwapChainFrameSystem::getSemaphoreFence()

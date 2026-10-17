@@ -394,6 +394,11 @@ void SFrameSyncPool2::destroy()
 		r.destroy();
 	}
 
+	for(auto& r : m_renderFinishedSemaphores)
+	{
+		r.destroy();
+	}
+
 	m_imageRenderFences.clear();
 }
 

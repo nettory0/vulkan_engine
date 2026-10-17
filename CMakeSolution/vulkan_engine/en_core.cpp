@@ -384,6 +384,8 @@ void CEngine::setPlayerAnimation(std::string animation)
 
 void CEngine::destroy()
 {
+	m_renderSystem.waitIdle();
+	m_interfaceResources.destroy();
 	m_renderSystem.destroy();
 }
 void CEngine::resizeSwapchain(int w, int h)
@@ -645,4 +647,16 @@ void SInterfaceResources::addTextureToDelete(void* pTexture)
 void SInterfaceResources::addBufferToDelete(void* pBuffer)
 {
 	m_textureToDelete[pBuffer] = 2;
+}
+
+void SInterfaceResources::destroy()
+{
+	for(auto& [id, descriptor] : m_aInterfaceTextureDescriptors)
+		descriptor.destroy();
+
+	for(auto& [id, texture] : m_aInterfaceTexture)
+		texture.clean();
+
+	for(auto& [id, buffer] : m_aInterfaceBuffer)
+		buffer.clean();
 }

@@ -58,6 +58,7 @@ add_subdirectory(window_app)
 add_subdirectory(shaders)
 add_subdirectory(qt_gui_render)
 add_subdirectory(sdl_app)
+add_subdirectory(resource)
 
 
 
