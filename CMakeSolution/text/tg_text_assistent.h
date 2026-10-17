@@ -20,7 +20,7 @@ class TEXT_GEN CTextAssistent
 public:
 	CTextAssistent() = default;
 	~CTextAssistent();
-	bool init2(const char* fontFilePath = "models/fonts/arial.ttf");
+	bool init2(const char* fontFilePath = "models/fonts/LiberationSans-Regular.ttf");
 	const character::CMeshText* getChar(char32_t);
 	FT_Library  m_library{nullptr};
 	FT_Face m_pFace{nullptr};

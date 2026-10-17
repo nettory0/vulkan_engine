@@ -177,7 +177,7 @@ bool CInterfaceManager::init()
 	if(m_pContext = Rml::CreateContext("menu", {1920, 1080}); m_pContext == nullptr)
 		return false;
 
-	Rml::LoadFontFace("models/fonts/Arial.ttf");
+	Rml::LoadFontFace("models/fonts/LiberationSans-Regular.ttf");
 	loadInterface("models/ui/demo.rml");
 	return true;
 }

@@ -71,15 +71,8 @@ void CWorld::addCubes()
 {
 	auto root = m_scene.m_scene.root();
 
-	m_scene.addCube(root, glm::vec3(0, 2, 0), 0, glm::vec3(0.5, 0.5, 0.5));
-	m_scene.addCube(root, glm::vec3(3, 2, 2), 0, glm::vec3(0.5, 0.5, 0.5));
-	m_scene.addCube(root, glm::vec3(4, 2.f, 2), 0, glm::vec3(0.5, 0.5, 0.5));
-	m_scene.addCube(root, glm::vec3(0, 5.f, 2), 1, {2, 2, 2});
-	m_scene.addCube(root, glm::vec3(glm::vec3(0, 15, 0)), 0, {15, 1, 15});
-	m_scene.addCube(root, glm::vec3(glm::vec3(31, 15, 0)), 0, {15, 1, 15});
-	m_scene.addCube(root, glm::vec3(glm::vec3(0, 15, 0)), 0, {15, 1, 15});
-	m_scene.addCube(root, glm::vec3(glm::vec3(0, 15, 0)), 0, {15, 1, 15});
-	m_scene.addCube(root, glm::vec3(glm::vec3(0, 0, 0)), 0, {1, 1, 1});
+	m_scene.addCube(root, glm::vec3(glm::vec3(0, 0, 0)), 0, {15, 1, 15});
+	m_scene.addCube(root, glm::vec3(glm::vec3(31, 0, 0)), 0, {15, 1, 15});
 }
 
 void CWorld::addModelsAnimated(const std::vector<asset::SLoadModel>& aModels)
