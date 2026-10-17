@@ -1,8 +1,15 @@
 # Vulkan Engine
 
+![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
+![Vulkan 1.4](https://img.shields.io/badge/Vulkan-1.4-red)
+![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+
 A personal real-time rendering engine written in modern C++ (C++20) on top of the Vulkan API.
 
-<!-- TODO: add screenshots / GIF here, e.g. docs/screenshot.png, docs/demo.gif -->
+![Skinned character with a physics-driven controller and RmlUi overlay](docs/screenshot.png)
+
+*Skeletal animation, physics-driven character controller and an RmlUi-based UI overlay.*
 
 ## Features
 
@@ -52,7 +59,17 @@ cmake --build build --config Release
 
 Executables and compiled shaders are placed in `build/bin`.
 
-<!-- TODO: describe where to get the models (models/...) used by the demo scenes -->
+## Running
+
+The demo assets (model, textures, fonts, UI and scene description `config_saved.yaml`) are stored in
+`CMakeSolution/resource/models`. Copy them next to the executables before the first run:
+
+```bash
+cmake --build build --config Release --target copy_data
+```
+
+Then start one of the applications from `build/bin`: `window_app` (GLFW), `sdl_app` (SDL) or
+`qt_gui_render` (Qt).
 
 ## Controls
 
