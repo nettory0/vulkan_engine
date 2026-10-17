@@ -400,6 +400,7 @@ void SFrameSyncPool2::destroy()
 	}
 
 	m_imageRenderFences.clear();
+	m_renderFinishedSemaphores.clear();
 }
 
 void SFrameSyncPool2::cleanRenderFences()

@@ -383,14 +383,15 @@ void CRenderSystem::recreateSwapchain()
 	if(!m_context.getInstance())
 		return;
 	m_context.logicalDevice().waitIdle();
+	m_commandPool.destroy();
 	m_frameSystem.m_swapChain.destroy();
 	m_frameSystem.m_frameBuffer.destroy();
 	m_frameSystem.m_renderFrame.destroy();
 	m_frameSystem.m_renderFrame2.destroy();
 	m_frameSystem.m_computeFrame.destroy();
 	m_pipelineManager.m_graphicPipelineManager.clear();
-
-
+	m_pipelineManager.m_graphicPipelineLayoutManager.clear();
+	
 	m_context.initDetails();
 	createSecond(m_bRayTracing);
 	if(m_bRayTracing)
