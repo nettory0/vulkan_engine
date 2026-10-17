@@ -1,0 +1,22 @@
+# Build output
+build/
+out/
+bin/
+lib/
+CMakeSolution/build/
+CMakeSolution/out/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+CMakeSettings.json
+CMakeUserPresets.json
+
+# Compiled shaders
+*.spv
+
+# Proprietary fonts (Arial is not redistributable), Liberation Sans is used instead
+CMakeSolution/resource/models/fonts/[Aa][Rr][Ii][Aa]*.[Tt][Tt][Ff]
+CMakeSolution/resource/models/fonts/ariblk.ttf

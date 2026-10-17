@@ -45,7 +45,7 @@ Requirements:
 - Qt 6 (Core, Widgets) for the `qt_gui_render` application
 - A GPU with ray tracing support for the ray-traced mode
 
-Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, stb, glm, yaml-cpp) are downloaded
+Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, stb, glm, yaml-cpp) are downloaded
 automatically with CMake `FetchContent`.
 
 ```bash
@@ -78,6 +78,11 @@ are kept in the corresponding files and the full license texts are in [`third_pa
   (`text/tg_vectoriser*`), MIT
 - **[NVIDIA nvpro-samples](https://github.com/nvpro-samples)** — PBR, random and ray tracing shader
   helpers (`shaders/common/`, `shaders/Ray2/pbr_gltf.glsl`), Apache 2.0
+
+Assets:
+
+- **[Liberation Sans](https://github.com/liberationfonts/liberation-fonts)** 2.1.5 — UI and 3D text font
+  (`resource/models/fonts/LiberationSans-*.ttf`), SIL Open Font License 1.1
 
 Libraries fetched at build time are distributed under their own licenses.
 
