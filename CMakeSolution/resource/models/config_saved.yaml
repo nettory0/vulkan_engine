@@ -1,0 +1,24 @@
+root:
+  modelSet:
+  modelPlayer:
+    nodeA:
+      path: models/assets/woman/Woman.gltf
+      texture: 
+        - "models/assets/woman/Woman.png"
+      position:
+        - 0.0
+        - 0.0
+        - 0.0
+      scale:
+        - 0.5
+        - 0.5
+        - 0.5
+      rotate:
+        - 0.0
+        - 1.0
+        - 0.0
+        - 90.0
+  primitiveSet:
+    nodeA1: value5
+    nodeA2: value6
+    nodeA3: value7

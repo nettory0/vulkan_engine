@@ -1,0 +1,10 @@
+<rml>
+<head>
+	<title>FPS</title>
+	<link type="text/rcss" href="style.rcss"/>
+</head>
+
+<body>
+	<div id="fps">FPS: 60</div>
+</body>
+</rml>
