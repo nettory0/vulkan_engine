@@ -1,0 +1,177 @@
+#version 450
+#extension GL_EXT_nonuniform_qualifier : enable
+
+layout(local_size_x = 64) in;
+
+struct SVertex
+{
+    vec4 pos;
+    vec4 normal;
+    vec4 color;
+    vec2 texCoord;
+    float pad0;
+    float pad1;
+};
+
+layout(set = 0, binding = 0) readonly buffer VertexBuffer {
+    SVertex positions[];
+} vertexBuffers[];
+
+layout(set = 0, binding = 1) readonly buffer IndexBuffer {
+    uint indices[];
+} indexBuffers[];
+
+struct MeshDesc {
+    uint vertexBufferIndex;
+    uint indexBufferIndex;
+    uint indexCount;
+    uint triangleOffset;
+    uvec4 idObject;
+    mat4 model;
+    mat4 modelInv;
+};
+
+layout(std430, set = 0, binding = 2) readonly buffer MeshBuffer {
+    MeshDesc meshes[];
+};
+
+struct Ray {
+    vec4 origin;
+    vec4 direction;
+    uvec4 totalTriangles;
+    mat4 view;
+	mat4 proj;
+    
+};
+
+layout(std140, set = 0, binding = 3) uniform RayUBO {
+    Ray ray;
+};
+
+struct Hit {
+    uint tBits;
+    uint meshIndex;
+    uint triangleIndex;
+    uint objectId;
+    vec4 pt1;
+	vec4 pt2;
+	vec4 pt3;
+};
+
+layout(std430, set = 0, binding = 4) buffer ResultBuffer {
+    Hit hit;
+};
+
+bool intersectTriangle(
+    vec3 orig,
+    vec3 dir,
+    vec3 v0,
+    vec3 v1,
+    vec3 v2,
+    out float t)
+{
+    const float EPSILON = 0.000001;
+
+    vec3 edge1 = v1 - v0;
+    vec3 edge2 = v2 - v0;
+
+    vec3 h = cross(dir, edge2);
+    float a = dot(edge1, h);
+
+    if (abs(a) < EPSILON)
+        return false;
+
+    float f = 1.0 / a;
+    vec3 s = orig - v0;
+    float u = f * dot(s, h);
+
+    if (u < 0.0 || u > 1.0)
+        return false;
+
+    vec3 q = cross(s, edge1);
+    float v = f * dot(dir, q);
+
+    if (v < 0.0 || u + v > 1.0)
+        return false;
+
+    t = f * dot(edge2, q);
+    return t > EPSILON;
+}
+
+void main()
+{ 
+
+    //Only for debug
+
+    uint globalTri = gl_GlobalInvocationID.x;
+     
+    if (globalTri >= ray.totalTriangles.x)
+        return;
+
+
+int meshIndex = -1;
+for (uint i = 0; i < meshes.length(); ++i)
+{
+    uint triStart = meshes[i].triangleOffset;
+    uint triEnd   = triStart + meshes[i].indexCount / 3;
+
+    if (globalTri >= triStart && globalTri < triEnd)
+    {
+        meshIndex = int(i);
+        break;
+    }
+}
+
+
+
+
+if (meshIndex == -1)
+    return;
+
+    MeshDesc mesh = meshes[meshIndex];
+
+    uint localTri = globalTri - mesh.triangleOffset;
+    uint baseIndex = localTri * 3;
+
+
+    if (baseIndex + 2 >= mesh.indexCount)
+        return;
+    
+    uint vbIndex = mesh.vertexBufferIndex;
+    uint ibIndex = mesh.indexBufferIndex;
+     
+    uint i0 = indexBuffers[nonuniformEXT(ibIndex)].indices[baseIndex + 0];
+    uint i1 = indexBuffers[nonuniformEXT(ibIndex)].indices[baseIndex + 1];
+    uint i2 = indexBuffers[nonuniformEXT(ibIndex)].indices[baseIndex + 2];
+
+    vec4 v0 = vec4(vertexBuffers[nonuniformEXT(vbIndex)].positions[i0].pos.xyz, 1);
+    vec4 v1 = vec4(vertexBuffers[nonuniformEXT(vbIndex)].positions[i1].pos.xyz, 1);
+    vec4 v2 = vec4(vertexBuffers[nonuniformEXT(vbIndex)].positions[i2].pos.xyz, 1);
+
+    hit.pt1 = mesh.model[3];
+    hit.pt2 = v1;
+    hit.pt3 = mesh.model*v1;
+
+    v0 = mesh.model*v0;
+    v1 = mesh.model*v1;
+    v2 = mesh.model*v2;
+
+vec3 localOrigin = ray.origin.xyz;
+vec3 localDir = normalize(ray.direction.xyz);
+
+    float t;
+    if (intersectTriangle(localOrigin, localDir, v0.xyz, v1.xyz, v2.xyz, t))
+    {
+        uint tBits = floatBitsToUint(t);
+
+        uint old = atomicMin(hit.tBits, tBits);
+
+        if (tBits < old)
+        {
+            hit.meshIndex = meshIndex;
+            hit.triangleIndex = localTri;
+            hit.objectId = mesh.idObject.x;
+        }
+    }
+
+}

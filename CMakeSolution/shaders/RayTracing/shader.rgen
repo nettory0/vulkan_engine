@@ -1,0 +1,142 @@
+#version 460
+#extension GL_EXT_ray_tracing : require
+#extension GL_GOOGLE_include_directive : require
+#include "../common/random.glsl"
+#include "../common/raytrace_struct.glsl"
+#include "../common/raytrace_utils.glsl"
+
+layout(location = 0) rayPayloadEXT RayPayload rayPayload;
+
+layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAccelStruct;
+layout(binding = 1, set = 0) uniform Camera 
+{
+  mat4 view;
+  mat4 projection;
+  vec4 position;
+  uint frameIndex;
+}
+camera;
+
+layout(binding = 4, set = 0, rgba32f) uniform image2D outputImage;
+
+void main() 
+{
+
+  mat4 inversProj = inverse(camera.projection);
+  mat4 inversView = inverse(camera.view);
+
+  const uint samplesPerPixel = 4;
+
+  uint seed = tea(gl_LaunchIDEXT.y * gl_LaunchIDEXT.x + gl_LaunchIDEXT.x, camera.frameIndex);
+
+  vec3 finalOutColor = vec3(0.5);
+
+  for (uint i = 0; i < samplesPerPixel; ++i) 
+  {
+    vec3 pathColor = vec3(0);
+
+    const float rand1 = rand(seed);
+    const float rand2 = rand(seed);
+
+    const vec2 jitter = vec2(rand1, rand2);
+
+    const vec2 pixelCenter = vec2(gl_LaunchIDEXT.xy) + vec2(0.5) + jitter;
+    const vec2 inUV = pixelCenter / vec2(gl_LaunchSizeEXT.xy);
+    vec2 ndc = inUV * 2.0 - 1.0;
+    ndc.y = -ndc.y;
+    vec4 origin = inversView  * vec4(0, 0, 0, 1);
+    vec4 target = inversProj * vec4(ndc.x, ndc.y, 1, 1);
+    vec4 direction = inversView  * vec4(normalize(target.xyz / target.w), 0);
+
+    uint rayFlags = gl_RayFlagsOpaqueEXT;
+    uint cullMask = 0xff;
+    float tmin = 0.001;
+    float tmax = 10000.0;
+
+    rayPayload.seed = seed;
+
+    rayPayload.currentBounceIndex = 0;
+    rayPayload.exit = false;
+    rayPayload.throughput = vec3(1.0);
+    rayPayload.radiance = vec3(0.0);
+    rayPayload.origin = origin.xyz;
+    rayPayload.direction = direction.xyz;
+    rayPayload.ao = vec3(0.0) * MAX_SAMPLES;
+    rayPayload.isCameraRay = true;
+
+    for (int j = 0; j < 10; ++j) 
+    {
+      rayPayload.currentBounceIndex = j;
+
+      traceRayEXT(topLevelAccelStruct, rayFlags, cullMask, 0, 0, 0,  rayPayload.origin.xyz, tmin, rayPayload.direction.xyz, tmax, 0);
+
+      if (rayPayload.exit) 
+      {
+        break;
+      }
+    }
+
+    pathColor = rayPayload.radiance;
+
+    // some magic to remove fireflies
+    float lum = dot(pathColor, vec3(0.212671f, 0.715160f, 0.072169f));
+    if (lum > 45.7) 
+    {
+      pathColor *= 45.7 / lum;
+    }
+
+    finalOutColor += pathColor;
+  }
+
+  finalOutColor /= float(samplesPerPixel);
+
+  imageStore(outputImage, ivec2(gl_LaunchIDEXT.xy), vec4(linear2sRGB(finalOutColor), 0.0));
+}
+
+/*
+void main() 
+{
+
+   
+
+   
+
+  ivec2 size = imageSize(image);
+  vec2 ndc = (vec2(gl_LaunchIDEXT.xy)/ size)  * 2.0 - 1.0 ;
+
+  vec4 clip = vec4(ndc, -1, 1);
+
+  vec4 view = inverse(camera.projection) * clip;
+
+  view = vec4(view.xyz/ view.w, 0.0);
+  vec3 worldDir = normalize((inverse(camera.view) * view).xyz);
+
+  mat4 inversproj = inverse(camera.projection);
+  mat4 inversView = inverse(camera.view);
+  vec4 eye = inversproj * vec4(ndc, 1, 1);
+  eye = vec4(eye.xy, -1, 0.0);
+  payload.rayOrigin = camera.position.xyz;
+  payload.rayDirection = worldDir;// normalize((inversView * eye).xyz);//uv.x * camera.right + uv.y * camera.up + camera.forward).xyz;
+  payload.previousNormal = vec3(0.0, 0.0, 0.0);
+
+  payload.directColor = vec3(0.0, 0.0, 0.0);
+  payload.indirectColor = vec3(0.0, 0.0, 0.0);
+  payload.rayDepth = 0;
+
+  payload.rayActive = 1;
+  vec3 delta1= vec3(0.0001, 0, 0);
+  vec4 color = vec4(0.0, 0.0, 0.0, 1);
+  for (int x = 0; x < 16; x++) 
+  {
+  payload.count = x;
+  payload.rayDirection += delta1;
+    traceRayEXT(topLevelAS, gl_RayFlagsOpaqueEXT, 0xFF, 0, 0, 0, payload.rayOrigin, 0.001, payload.rayDirection, 10000.0, 0);
+    color += vec4(payload.directColor + payload.indirectColor, 1.0);
+    
+  payload.directColor = vec3(0.0, 0.0, 0.0);
+  payload.indirectColor = vec3(0.0, 0.0, 0.0);
+  }
+
+  imageStore(image, ivec2(gl_LaunchIDEXT.xy), color);
+}
+*/
