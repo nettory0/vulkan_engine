@@ -2,7 +2,7 @@
 
 A personal real-time rendering engine written in modern C++ (C++20) on top of the Vulkan API.
 
-<!-- TODO: add screenshots / GIF here, e.g. docs/screenshot_raster.png, docs/screenshot_rt.png -->
+<!-- TODO: add screenshots / GIF here, e.g. docs/screenshot.png, docs/demo.gif -->
 
 ## Features
 
@@ -12,8 +12,6 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
   - Dynamic rendering (`VK_KHR_dynamic_rendering`) and Synchronization2 barriers
   - Multiple frames in flight, swapchain recreation on resize
   - Static and skinned meshes
-- **Hardware ray tracing** (`VK_KHR_ray_tracing_pipeline`) — raygen / closest-hit / miss / shadow shaders,
-  glTF PBR material model
 - **Compute** — GPU ray picking for object selection
 - **Skeletal animation** — loading and playback of animated models (assimp)
 - **Text rendering** — FreeType glyph outlines vectorised and triangulated into meshes
@@ -26,7 +24,7 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 | Module | Description |
 |---|---|
 | `vulkan_struct` | Low-level Vulkan wrappers and struct builders |
-| `vulkan_engine` | Render system, pipelines, descriptors, ray tracing, compute, animation, scene |
+| `vulkan_engine` | Render system, pipelines, descriptors, compute, animation, scene |
 | `asset_loader` | Model and scene description loading (YAML) |
 | `text` | Glyph vectorisation and triangulation |
 | `physic_engine` | Simple physics |
@@ -43,7 +41,6 @@ Requirements:
 - C++20 compiler (tested with Visual Studio 2022)
 - [Vulkan SDK](https://vulkan.lunarg.com/) 1.4 (`glslangValidator` is used to compile shaders)
 - Qt 6 (Core, Widgets) for the `qt_gui_render` application
-- A GPU with ray tracing support for the ray-traced mode
 
 Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, stb, glm, yaml-cpp) are downloaded
 automatically with CMake `FetchContent`.
@@ -78,14 +75,20 @@ are kept in the corresponding files and the full license texts are in [`third_pa
   (`text/tg_vectoriser*`), MIT
 - **[NVIDIA nvpro-samples](https://github.com/nvpro-samples)** — PBR, random and ray tracing shader
   helpers (`shaders/common/`, `shaders/Ray2/pbr_gltf.glsl`), Apache 2.0
+- **[LearnOpenGL](https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation)** — skeletal animation
+  (`vulkan_engine/en_animation_*`, `shaders/anim_model.vert`),
+  [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) — **non-commercial use only**
 
 Assets:
 
 - **[Liberation Sans](https://github.com/liberationfonts/liberation-fonts)** 2.1.5 — UI and 3D text font
   (`resource/models/fonts/LiberationSans-*.ttf`), SIL Open Font License 1.1
+- **[Animated Woman](https://poly.pizza/m/9kF7eTDbhO)** by [Quaternius](https://quaternius.com)
+  (`resource/models/assets/woman/`), CC0
 
 Libraries fetched at build time are distributed under their own licenses.
 
 ## License
 
-The engine code is licensed under the [MIT License](LICENSE).
+The engine code is licensed under the [MIT License](LICENSE), except for the third-party files listed
+above, which remain under their original licenses.
