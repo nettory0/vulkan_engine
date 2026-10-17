@@ -1,3 +1,10 @@
+/*
+ * Based on NVIDIA nvpro-samples ray tracing shaders (https://github.com/nvpro-samples)
+ * Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+ * Licensed under the Apache License, Version 2.0, see third_party_licenses/Apache-2.0.txt
+ *
+ * Modified by nettory0, 2026.
+ */
 #ifndef RAYTRACE_UTILS_GLSL
 #define RAYTRACE_UTILS_GLSL 1
 

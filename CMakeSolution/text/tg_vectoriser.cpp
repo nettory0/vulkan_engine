@@ -1,3 +1,10 @@
+/*
+ * Based on FTGL FTVectoriser (https://github.com/frankheckenbach/ftgl)
+ * Copyright (C) 2001-2004 Henry Maddocks and FTGL contributors
+ * Licensed under the MIT License, see third_party_licenses/FTGL-COPYING.txt
+ *
+ * Modified by nettory0, 2026: renamed types, adapted for glyph mesh generation.
+ */
 #include <cmath>
 #include "tg_vectoriser.h"
 

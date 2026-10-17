@@ -1,3 +1,10 @@
+/*
+ * Based on Poly2Tri (https://github.com/jhasse/poly2tri)
+ * Copyright (c) 2009-2018, Poly2Tri Contributors. All rights reserved.
+ * Licensed under the BSD 3-Clause License, see third_party_licenses/poly2tri-LICENSE.txt
+ *
+ * Modified by nettory0, 2026: renamed types, adapted for glyph triangulation.
+ */
 #pragma once
 // Otherwise #defines like M_PI are undeclared under Visual Studio
 #define _USE_MATH_DEFINES
