@@ -1,7 +1,7 @@
 # Vulkan Engine
 
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
-![Vulkan 1.4](https://img.shields.io/badge/Vulkan-1.4-red)
+![Vulkan 1.3](https://img.shields.io/badge/Vulkan-1.3-red)
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
@@ -13,17 +13,20 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 
 ## Features
 
-- **Vulkan core layer** (`vulkan_struct`) — RAII wrappers for Vulkan objects built on a single
-  `CVulkanObject<Handle, Device, CreateInfo>` template, create-info builders, function loading via volk
+- **Vulkan core layer** (`vulkan_struct`) — move-only wrappers for Vulkan objects built on a single
+  `CVulkanObject<Handle, Device, CreateInfo>` template with explicit `create()` / `destroy()`,
+  create-info builders, function loading via volk
 - **Rendering**
   - Dynamic rendering (`VK_KHR_dynamic_rendering`) and Synchronization2 barriers
+  - Descriptor buffers (`VK_EXT_descriptor_buffer`) instead of descriptor pools/sets
   - Multiple frames in flight, swapchain recreation on resize
   - Static and skinned meshes
-- **Compute** — GPU ray picking for object selection
+- **Compute** — GPU ray picking for object highlighting and selection
 - **Skeletal animation** — loading and playback of animated models (assimp)
 - **Text rendering** — FreeType glyph outlines vectorised and triangulated into meshes
-- **2D UI layer** and in-engine menu
-- **Scene / component system**, orbit camera, physics-driven character controller, selection and highlighting
+- **2D UI layer** and in-engine menu (RmlUi)
+- **Scene / component system**, free and orbit cameras, physics-driven character controller (Bullet),
+  selection and highlighting
 - **Multiple front-ends** — GLFW and SDL applications share the same engine library; an optional Qt 6
   front-end is also available (see [Building](#building))
 
@@ -35,7 +38,7 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 | `vulkan_engine` | Render system, pipelines, descriptors, compute, animation, scene |
 | `asset_loader` | Model and scene description loading (YAML) |
 | `text` | Glyph vectorisation and triangulation |
-| `physic_engine` | Simple physics |
+| `physic_engine` | Physics wrapper over Bullet |
 | `interface_menu` | 2D UI / menu |
 | `commons` | Shared types, geometry primitives, logging |
 | `shaders` | GLSL shaders, compiled to SPIR-V at build time |
@@ -50,6 +53,9 @@ Requirements:
 - C++20 compiler (tested with MSVC / Visual Studio)
 - [Vulkan SDK](https://vulkan.lunarg.com/) 1.4 (`glslangValidator` is used to compile shaders)
 - *Optional:* Qt 6 (Core, Widgets) for the `qt_gui_render` application
+- GPU and driver with Vulkan 1.3 support and the `VK_EXT_descriptor_buffer`,
+  `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure` extensions — they are currently
+  required at device selection even though the demo applications use the raster path
 
 Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, stb, glm, yaml-cpp) are downloaded
 automatically with CMake `FetchContent`.
@@ -82,9 +88,13 @@ Start one of the applications from `build/bin`: `window_app` (GLFW) or `sdl_app`
 |---|---|
 | W / A / S / D | Move the character |
 | Space | Jump |
-| Left mouse | Select object |
-| Ctrl + left mouse | Add to selection |
+| Left / right mouse drag | Camera control |
+| Mouse over object | Highlight (GPU ray picking) |
 | Esc | Exit (GLFW app) |
+
+The GLFW and SDL applications start in simulation mode. Object selection (left click, Ctrl + left click
+to add to selection) and orbit-camera zoom with the mouse wheel work in edit mode, which can currently
+be switched on only from the Qt application.
 
 ## Third-party code
 
