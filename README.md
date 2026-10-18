@@ -13,9 +13,9 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 
 ## Features
 
-- **Vulkan core layer** (`vulkan_struct`) — move-only wrappers for Vulkan objects built on a single
-  `CVulkanObject<Handle, Device, CreateInfo>` template with explicit `create()` / `destroy()`,
-  create-info builders, function loading via volk
+- **Vulkan core layer** (`vulkan_struct`) — move-only RAII wrappers for Vulkan objects built on a single
+  `CVulkanObject<Handle, Device, CreateInfo>` template (destroyed in destructors, `destroy()` is also
+  available for explicit early release), create-info builders, function loading via volk
 - **Rendering**
   - Dynamic rendering (`VK_KHR_dynamic_rendering`) and Synchronization2 barriers
   - Descriptor buffers (`VK_EXT_descriptor_buffer`) instead of descriptor pools/sets
