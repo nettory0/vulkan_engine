@@ -775,7 +775,6 @@ void CRenderSystem::rayTracingDescriptors(const std::vector<uint32_t>& indexVert
 	materialList[0].diffuse = {1, 1, 1, 1};
 	materialList[0].specular = {1, 1, 1, 1};
 	materialList[0].emission = {1, 1, 1, 1};
-	printf("%d\n", primitiveCount);
 
 	std::vector<en_vk::SIndexVertexBuffers> aBuffers;
 	aBuffers.push_back({});//

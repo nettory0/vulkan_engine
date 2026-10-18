@@ -42,16 +42,10 @@ bool addCharacter(character::CMeshText& mesh, FT_Face face, char32_t ch, unsigne
 {
 	FT_UInt curCharIndex = FT_Get_Char_Index(face, ch);
 	if(FT_Load_Glyph(face, curCharIndex, FT_LOAD_DEFAULT))
-	{
-		printf("FT_Load_Glyph failed\n");
 		return false;
-	}
 
 	if(face->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-	{
-		printf("Invalid Glyph Format\n");
 		return false;
-	}
 
 	const float h = face->height;
 	ftgl::CVectoriser vectoriser = getVectoriser(face->glyph, ch, bezierSteps);

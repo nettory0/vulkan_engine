@@ -489,7 +489,6 @@ void SSupportDetails::init(const VkPhysicalDevice& device, const VkSurfaceKHR& s
 	findSupportedFormat(device);
 	vkGetPhysicalDeviceMemoryProperties(device, &m_memProperties);
 	vkGetPhysicalDeviceProperties(device, &m_physicalDeviceProperties);
-	printf("%s\n", m_physicalDeviceProperties.deviceName);
 
 	if(m_swapChainInfo.m_capabilities.currentExtent.height != UINT32_MAX)
 	{
@@ -631,7 +630,6 @@ void CDescriptorBufferResource::create(
 	// =========================
 	VkDeviceSize layoutSize = 0;
 	vk.vkGetDescriptorSetLayoutSizeEXT(device, layout, &layoutSize);
-	//printf("layoutSize %llu\n", (unsigned long long)layoutSize);
 	if(layoutSize == 0)
 		throw std::runtime_error("DescriptorSetLayoutSize is 0 (invalid layout or missing descriptorBuffer feature)");
 
@@ -652,7 +650,7 @@ void CDescriptorBufferResource::create(
 
 		if(write.descriptorCount > 1)
 		{
-			//printf("need new implementation");
+			//TODO
 		}
 		for(uint32_t i = 0; i < write.descriptorCount; ++i)
 		{
@@ -832,10 +830,7 @@ CTexture::~CTexture()
 void CTexture::createTextureImage(const VkDevice& device, const VkPhysicalDevice& physicalDevice, const std::vector<unsigned char>& pixels, int texWidth, int texHeight, int texChannels, CCommandPool& commandPool, vk_base::CQueue& queue, const SSupportDetails& details)
 {
 	if(pixels.empty() || texWidth == 0 || texHeight == 0)
-	{
-		printf("create texture fail\n");
 		return;
-	}
 
 	//uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 	const auto maxTex = texWidth > texHeight ? texWidth : texHeight;// std::max(texWidth, texHeight);
@@ -1300,11 +1295,8 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<cons
 	for(const auto& extension : availableExtensions)
 	{
 		std::string extentionName{extension.extensionName};
-		printf("extension supported %s\n", std::string(extension.extensionName).c_str());
 		requiredExtensions.erase(extentionName);
 	}
-	for(auto& extention : requiredExtensions)
-		printf("not extension supported %s\n", extention.c_str());
 	return requiredExtensions.empty();
 }
 
@@ -1849,9 +1841,6 @@ void CBuffer::bindBufferMemory(const VkDevice& device)
 
 void CBuffer::load(size_t size, const void* pData, size_t offset)
 {
-	if(m_bufferSize < size)
-		printf("CBuffer:: bad size\n");
-
 	m_bufferMemory.loadMemory(size, pData, offset);
 }
 
