@@ -24,7 +24,8 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 - **Text rendering** — FreeType glyph outlines vectorised and triangulated into meshes
 - **2D UI layer** and in-engine menu
 - **Scene / component system**, orbit camera, physics-driven character controller, selection and highlighting
-- **Multiple front-ends** — GLFW, SDL and Qt 6 windows share the same engine library
+- **Multiple front-ends** — GLFW and SDL applications share the same engine library; an optional Qt 6
+  front-end is also available (see [Building](#building))
 
 ## Project structure
 
@@ -38,16 +39,17 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 | `interface_menu` | 2D UI / menu |
 | `commons` | Shared types, geometry primitives, logging |
 | `shaders` | GLSL shaders, compiled to SPIR-V at build time |
-| `window_app` / `sdl_app` / `qt_gui_render` | GLFW / SDL / Qt applications |
+| `window_app` / `sdl_app` | GLFW / SDL applications |
+| `qt_gui_render` | Qt 6 application (optional, off by default) |
 
 ## Building
 
 Requirements:
 
-- CMake 3.15+
-- C++20 compiler (tested with Visual Studio 2022)
+- CMake 3.15+ (CMake 4.x is supported)
+- C++20 compiler (tested with MSVC / Visual Studio)
 - [Vulkan SDK](https://vulkan.lunarg.com/) 1.4 (`glslangValidator` is used to compile shaders)
-- Qt 6 (Core, Widgets) for the `qt_gui_render` application
+- *Optional:* Qt 6 (Core, Widgets) for the `qt_gui_render` application
 
 Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, stb, glm, yaml-cpp) are downloaded
 automatically with CMake `FetchContent`.
@@ -59,6 +61,13 @@ cmake --build build --config Release
 
 Executables and compiled shaders are placed in `build/bin`.
 
+The Qt front-end is disabled by default. To build it, enable the option and point CMake to your Qt
+installation:
+
+```bash
+cmake -S CMakeSolution -B build -DBUILD_QT_APP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.8.0/msvc2022_64
+```
+
 ## Running
 
 The demo assets (model, textures, fonts, UI and scene description `config_saved.yaml`) are stored in
@@ -68,8 +77,8 @@ The demo assets (model, textures, fonts, UI and scene description `config_saved.
 cmake --build build --config Release --target copy_data
 ```
 
-Then start one of the applications from `build/bin`: `window_app` (GLFW), `sdl_app` (SDL) or
-`qt_gui_render` (Qt).
+Then start one of the applications from `build/bin`: `window_app` (GLFW) or `sdl_app` (SDL)
+(or `qt_gui_render` if it was built with `BUILD_QT_APP=ON`).
 
 ## Controls
 
