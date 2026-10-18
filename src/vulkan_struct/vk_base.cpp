@@ -68,8 +68,6 @@ void CDebugMessenger::destroy(VkInstance instance)
 
 CDebugMessenger::~CDebugMessenger()
 {
-	//destroy(VkInstance) ignores its parameter internally (the instance is
-   // already stored via CVkDeviceBase<VkInstance>), so this is safe.
 	destroy(device());
 }
 
@@ -142,7 +140,7 @@ CBufferBase& CBufferBase::operator=(CBufferBase&& other) noexcept
 
 VkMemoryRequirements CBufferBase::memoryRequirements()
 {
-	VkMemoryRequirements memoryRequirements;
+	VkMemoryRequirements memoryRequirements{};
 	if(auto deviceHandle = device())
 		vk_init::volkTable(deviceHandle).vkGetBufferMemoryRequirements(device(), handle(), &memoryRequirements);
 	return memoryRequirements;
@@ -166,7 +164,7 @@ CBufferBase::~CBufferBase()
 
 VkMemoryRequirements CImageBase::memoryRequirements()
 {
-	VkMemoryRequirements memoryRequirements;
+	VkMemoryRequirements memoryRequirements{};
 	if(auto deviceHandle = device())
 		vk_init::volkTable(deviceHandle).vkGetImageMemoryRequirements(device(), handle(), &memoryRequirements);
 	return memoryRequirements;

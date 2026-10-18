@@ -57,8 +57,8 @@ Requirements:
   `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure` extensions — they are currently
   required at device selection even though the demo applications use the raster path
 
-Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, stb, glm, yaml-cpp) are downloaded
-automatically with CMake `FetchContent`.
+Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, Poly2Tri, spdlog, stb, glm,
+yaml-cpp) are downloaded automatically with CMake `FetchContent`.
 
 ```bash
 cmake -S src -B build
@@ -80,7 +80,8 @@ The demo assets (model, textures, fonts, UI and scene description `config_saved.
 `src/resource/models` and are copied to `build/bin/models` automatically when an application is built.
 
 Start one of the applications from `build/bin`: `window_app` (GLFW) or `sdl_app` (SDL)
-(or `qt_gui_render` if it was built with `BUILD_QT_APP=ON`).
+(or `qt_gui_render` if it was built with `BUILD_QT_APP=ON`). Debug builds enable the Vulkan validation
+layers.
 
 ## Controls
 
@@ -102,21 +103,21 @@ This repository includes code derived from the following projects; the original 
 are kept in the corresponding files and the full license texts are in [`third_party_licenses/`](third_party_licenses/):
 
 - **[Poly2Tri](https://github.com/jhasse/poly2tri)** — constrained Delaunay triangulation
-  (`text/tg_sweep*`, `text/tg_shapes*`, `text/tg_utils.h`), BSD 3-Clause
+  (`src/text/tg_sweep*`, `src/text/tg_shapes*`, `src/text/tg_utils.h`), BSD 3-Clause
 - **[FTGL](https://github.com/frankheckenbach/ftgl)** — glyph outline vectoriser
-  (`text/tg_vectoriser*`), MIT
+  (`src/text/tg_vectoriser*`), MIT
 - **[NVIDIA nvpro-samples](https://github.com/nvpro-samples)** — PBR, random and ray tracing shader
-  helpers (`shaders/common/`, `shaders/Ray2/pbr_gltf.glsl`), Apache 2.0
+  helpers (`src/shaders/common/`, `src/shaders/Ray2/pbr_gltf.glsl`), Apache 2.0
 - **[LearnOpenGL](https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation)** — skeletal animation
-  (`vulkan_engine/en_animation_*`, `shaders/anim_model.vert`),
+  (`src/vulkan_engine/en_animation_*`, `src/shaders/anim_model.vert`),
   [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) — **non-commercial use only**
 
 Assets:
 
 - **[Liberation Sans](https://github.com/liberationfonts/liberation-fonts)** 2.1.5 — UI and 3D text font
-  (`resource/models/fonts/LiberationSans-*.ttf`), SIL Open Font License 1.1
+  (`src/resource/models/fonts/LiberationSans-*.ttf`), SIL Open Font License 1.1
 - **[Animated Woman](https://poly.pizza/m/9kF7eTDbhO)** by [Quaternius](https://quaternius.com)
-  (`resource/models/assets/woman/`), CC0
+  (`src/resource/models/assets/woman/`), CC0
 
 Libraries fetched at build time are distributed under their own licenses.
 

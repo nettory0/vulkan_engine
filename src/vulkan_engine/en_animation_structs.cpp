@@ -35,7 +35,6 @@ CMeshAnimated::CMeshAnimated(std::vector<SVertexBone> vertices, std::vector<unsi
 	m_object.m_vertices = vertices;
 	m_object.m_indices = indices;
 	m_materialIndex = material;
-	printf("mat ind %d\n", m_materialIndex);
 }
 
 const en_vk_draw::CDrawObjectIndexed<SVertexBone>& CMeshAnimated::getVertexData() const

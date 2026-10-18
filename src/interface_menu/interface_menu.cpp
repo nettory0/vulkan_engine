@@ -64,7 +64,7 @@ Rml::TextureHandle CRenderInterface::LoadTexture(Rml::Vector2i& texture_dimensio
 	}
 
 	int width = 0, height = 0, source_channels = 0;
-	unsigned char* pixels = stbi_load_from_memory(file_data.data(), static_cast<int>(file_data.size()),  &width, &height, &source_channels, kChannels);
+	unsigned char* pixels = stbi_load_from_memory(file_data.data(), static_cast<int>(file_data.size()), &width, &height, &source_channels, kChannels);
 	if(!pixels)
 	{
 		Rml::Log::Message(Rml::Log::LT_WARNING, "stb_image '%s': %s", source.c_str(), stbi_failure_reason());
@@ -122,13 +122,12 @@ Rml::CompiledGeometryHandle CRenderInterface::CompileGeometry(Rml::Span<const Rm
 	geom->m_aIndices.reserve(indices.size());
 	for(const auto& point : vertices)
 	{
-		
 		commons_struct::SVertex vertex;
 		float x_ndc = (2. * point.position.x / 1920.) - 1;
 		float y_ndc = (2. * point.position.y / 1080.) - 1;
 		vertex.pos = glm::vec4(x_ndc, y_ndc, 0, 1);
 		vertex.texCoord = glm::vec2(point.tex_coord.x, point.tex_coord.y);
-		vertex.color = glm::vec4((float)point.colour.red/255., (float)point.colour.green / 255., (float)point.colour.blue / 255., (float)point.colour.alpha / 255.);
+		vertex.color = glm::vec4((float)point.colour.red / 255., (float)point.colour.green / 255., (float)point.colour.blue / 255., (float)point.colour.alpha / 255.);
 		geom->m_aVx.push_back(vertex);
 	}
 
@@ -169,7 +168,7 @@ CInterfaceManager::CInterfaceManager():m_interfaceProvider{std::make_unique<CRen
 
 CInterfaceManager::~CInterfaceManager()
 {
-	Rml::Shutdown();
+	destroy();
 }
 
 bool CInterfaceManager::init()
@@ -268,9 +267,20 @@ double CSystemInterface::GetElapsedTime()
 
 bool CSystemInterface::LogMessage(Rml::Log::Type type, const Rml::String& message)
 {
-	std::string comment{"[RmlUi] "};
-	comment.append(std::string(message));
-	common::logError(message);
+	const std::string text = "[RmlUi] " + message;
+	switch(type)
+	{
+	case Rml::Log::LT_ERROR:
+	case Rml::Log::LT_ASSERT:
+	common::logError(text);
+	break;
+	case Rml::Log::LT_WARNING:
+	common::logWarning(text);
+	break;
+	default:
+	common::logInfo(text);
+	break;
+	}
 	return true;
 }
 
