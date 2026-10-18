@@ -46,6 +46,7 @@ class CInterfaceManager
 {
 public:
     CInterfaceManager();
+    ~CInterfaceManager();
     bool init();
     bool loadInterface(std::string path);
     void destroy();

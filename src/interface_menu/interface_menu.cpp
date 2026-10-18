@@ -167,6 +167,11 @@ const std::set<commons_struct::SIndexedVx*>& CRenderInterface::avalibelGeometry(
 CInterfaceManager::CInterfaceManager():m_interfaceProvider{std::make_unique<CRenderInterface>()}, m_systemInterfaceProvider{std::make_unique<CSystemInterface>()}
 {}
 
+CInterfaceManager::~CInterfaceManager()
+{
+	Rml::Shutdown();
+}
+
 bool CInterfaceManager::init()
 {
 	Rml::SetRenderInterface(m_interfaceProvider.get());
