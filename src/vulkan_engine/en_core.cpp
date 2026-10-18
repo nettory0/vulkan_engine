@@ -22,9 +22,6 @@
 CEngine::CEngine():m_pInterfaceSystem{std::make_unique<interface_menu::CInterfaceSystem>()}
 {
 	m_pInterfaceSystem->init();
-	common::logError(std::string{"test log error"});
-	common::logWarning(std::string{"test log warning"});
-	common::logInfo(std::string{"test log info"});
 }
 CEngine::~CEngine()
 {}
