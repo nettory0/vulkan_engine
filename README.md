@@ -46,7 +46,7 @@ A personal real-time rendering engine written in modern C++ (C++20) on top of th
 
 Requirements:
 
-- CMake 3.15+ (CMake 4.x is supported)
+- CMake 3.26+ (CMake 4.x is supported)
 - C++20 compiler (tested with MSVC / Visual Studio)
 - [Vulkan SDK](https://vulkan.lunarg.com/) 1.4 (`glslangValidator` is used to compile shaders)
 - *Optional:* Qt 6 (Core, Widgets) for the `qt_gui_render` application
@@ -55,7 +55,7 @@ Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, stb, 
 automatically with CMake `FetchContent`.
 
 ```bash
-cmake -S CMakeSolution -B build
+cmake -S src -B build
 cmake --build build --config Release
 ```
 
@@ -65,19 +65,15 @@ The Qt front-end is disabled by default. To build it, enable the option and poin
 installation:
 
 ```bash
-cmake -S CMakeSolution -B build -DBUILD_QT_APP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.8.0/msvc2022_64
+cmake -S src -B build -DBUILD_QT_APP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.8.0/msvc2022_64
 ```
 
 ## Running
 
 The demo assets (model, textures, fonts, UI and scene description `config_saved.yaml`) are stored in
-`CMakeSolution/resource/models`. Copy them next to the executables before the first run:
+`src/resource/models` and are copied to `build/bin/models` automatically when an application is built.
 
-```bash
-cmake --build build --config Release --target copy_data
-```
-
-Then start one of the applications from `build/bin`: `window_app` (GLFW) or `sdl_app` (SDL)
+Start one of the applications from `build/bin`: `window_app` (GLFW) or `sdl_app` (SDL)
 (or `qt_gui_render` if it was built with `BUILD_QT_APP=ON`).
 
 ## Controls

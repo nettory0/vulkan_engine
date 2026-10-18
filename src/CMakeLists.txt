@@ -1,5 +1,7 @@
-﻿cmake_minimum_required(VERSION 3.15)
-project(Solution LANGUAGES C CXX)
+﻿cmake_minimum_required(VERSION 3.26)
+project(VulkanEngine LANGUAGES C CXX)
+
+option(BUILD_QT_APP "Build the Qt 6 front-end (requires Qt 6)" OFF)
 
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -44,9 +46,6 @@ else()
     )
 endif()
 
-add_compile_definitions(
-    $<$<CONFIG:Debug>:DEBUG>
-)
 add_subdirectory(commons)
 add_subdirectory(interface_menu)
 add_subdirectory(text)
@@ -56,12 +55,15 @@ add_subdirectory(asset_loader)
 add_subdirectory(vulkan_engine)
 add_subdirectory(window_app)
 add_subdirectory(shaders)
-option(BUILD_QT_APP "Build the Qt 6 front-end (requires Qt 6)" OFF)
 if (BUILD_QT_APP)
     add_subdirectory(qt_gui_render)
 endif()
 add_subdirectory(sdl_app)
 add_subdirectory(resource)
 
-
-
+# Copy demo assets next to the executables on every build
+add_dependencies(window_app copy_data)
+add_dependencies(sdl_app copy_data)
+if (BUILD_QT_APP)
+    add_dependencies(qt_gui_render copy_data)
+endif()
