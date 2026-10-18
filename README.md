@@ -53,9 +53,10 @@ Requirements:
 - C++20 compiler (tested with MSVC / Visual Studio)
 - [Vulkan SDK](https://vulkan.lunarg.com/) 1.4 (`glslangValidator` is used to compile shaders)
 - *Optional:* Qt 6 (Core, Widgets) for the `qt_gui_render` application
-- GPU and driver with Vulkan 1.3 support and the `VK_EXT_descriptor_buffer`,
-  `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure` extensions — they are currently
-  required at device selection even though the demo applications use the raster path
+- GPU and driver with Vulkan 1.3 support and the `VK_EXT_descriptor_buffer` extension
+- Ray tracing support is experimental and disabled by default. The `VK_KHR_ray_tracing_pipeline`,
+  `VK_KHR_acceleration_structure` and `VK_KHR_deferred_host_operations` extensions are requested only
+  when `RT_EXTENTIONS` is defined in `src/vulkan_engine/en_gl_context.cpp`
 
 Other dependencies (volk, VMA, GLFW, SDL, assimp, FreeType, RmlUi, Bullet, Poly2Tri, spdlog, stb, glm,
 yaml-cpp) are downloaded automatically with CMake `FetchContent`.
