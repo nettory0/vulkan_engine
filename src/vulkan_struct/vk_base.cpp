@@ -36,7 +36,7 @@ void CLogicalDeviceBase::create(VkPhysicalDevice physicalDevice, const VkDeviceC
 
 CLogicalDeviceBase::~CLogicalDeviceBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CInstanceBase::create(const VkInstanceCreateInfo& createInfo)
@@ -53,7 +53,7 @@ void CInstanceBase::destroy()
 
 CInstanceBase::~CInstanceBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CDebugMessenger::create(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo)
@@ -68,9 +68,9 @@ void CDebugMessenger::destroy(VkInstance instance)
 
 CDebugMessenger::~CDebugMessenger()
 {
-	// destroy(VkInstance) ignores its parameter internally (the instance is
+	 //destroy(VkInstance) ignores its parameter internally (the instance is
 	// already stored via CVkDeviceBase<VkInstance>), so this is safe.
-	//destroy(device());
+	destroy(device());
 }
 
 void destroySurface(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks* pAllocator)
@@ -90,7 +90,7 @@ void CDescriptorPool::destroy()
 
 CDescriptorPool::~CDescriptorPool()
 {
-	//destroy();
+	destroy();
 }
 
 void CSwapchainBase::create(const VkDevice& device, const VkSwapchainCreateInfoKHR& createInfo)
@@ -114,7 +114,7 @@ std::vector<VkImage> CSwapchainBase::getSwapchainImages()
 
 CSwapchainBase::~CSwapchainBase()
 {
-	//destroy();
+	destroy();
 }
 
 CBufferBase::CBufferBase(CBufferBase&& other) noexcept
@@ -175,7 +175,7 @@ void CImageBase::destroy()
 
 CImageBase::~CImageBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CFramebufferBase::create(const VkDevice& device, const VkFramebufferCreateInfo& createInfo)
@@ -190,7 +190,7 @@ void CFramebufferBase::destroy()
 
 CFramebufferBase::~CFramebufferBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CSampler::create(const VkDevice& device, const VkSamplerCreateInfo& createInfo)
@@ -205,7 +205,7 @@ void CSampler::destroy()
 
 CSampler::~CSampler()
 {
-	//destroy();
+	destroy();
 }
 
 CMemoryBuffer::CMemoryBuffer(CMemoryBuffer&& other) noexcept
@@ -282,7 +282,7 @@ void CMemoryBuffer::readMemory(size_t bufferSize, void* dataIn)
 
 CMemoryBuffer::~CMemoryBuffer()
 {
-	//destroy();
+	destroy();
 }
 
 void CImageView::create(const VkDevice& device, const VkImageViewCreateInfo& createInfo)
@@ -297,7 +297,7 @@ void CImageView::destroy()
 
 CImageView::~CImageView()
 {
-	//destroy();
+	destroy();
 }
 
 void CFence::reset()
@@ -324,7 +324,7 @@ VkResult CFence::waitForFence()
 
 CFence::~CFence()
 {
-	//destroy();
+	destroy();
 }
 
 void CQueue::getDeviceQueue(const VkDevice& device, uint32_t family)
@@ -364,7 +364,7 @@ void CSemaphore::destroy()
 
 CSemaphore::~CSemaphore()
 {
-	//destroy();
+	destroy();
 }
 
 void CPipelineLayoutBase::create(const VkDevice& device, const VkPipelineLayoutCreateInfo& createInfo)
@@ -379,7 +379,7 @@ void CPipelineLayoutBase::destroy()
 
 CPipelineLayoutBase::~CPipelineLayoutBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CCommandPoolBase::create(const VkDevice& device, const VkCommandPoolCreateInfo& createInfo)
@@ -405,7 +405,7 @@ void CCommandPoolBase::freeCommandBuffers(uint32_t size, VkCommandBuffer* pComma
 
 CCommandPoolBase::~CCommandPoolBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CPipelineBase::create(const VkDevice& device, const VkGraphicsPipelineCreateInfo& createInfo)
@@ -441,7 +441,7 @@ void CPipelineBase::destroy()
 
 CPipelineBase::~CPipelineBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CDescriptorSetBase::create(const VkDevice& device, const VkDescriptorSetAllocateInfo& allocInfo)
@@ -476,7 +476,7 @@ VkDeviceSize CDescriptorSetBase::allocateDescriptorSetOffset()
 
 CDescriptorSetBase::~CDescriptorSetBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CShaderModule::create(const VkDevice& device, const VkShaderModuleCreateInfo& createInfo)
@@ -491,7 +491,7 @@ void CShaderModule::destroy()
 
 CShaderModule::~CShaderModule()
 {
-	//destroy();
+	destroy();
 }
 
 void CDescriptorSetLayoutBase::create(const VkDevice& device, const VkDescriptorSetLayoutCreateInfo& createInfo)
@@ -506,7 +506,7 @@ void CDescriptorSetLayoutBase::destroy()
 
 CDescriptorSetLayoutBase::~CDescriptorSetLayoutBase()
 {
-	//destroy();
+	destroy();
 }
 
 void CCommandBuffer::beginCommandBuffer(const VkCommandBufferBeginInfo& beginInfo)
