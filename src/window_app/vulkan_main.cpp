@@ -6,15 +6,6 @@
 int main()
 {
     CApplication app;
-
-    //WCHAR path[500];
-    //DWORD size = GetModuleFileNameW(NULL, path, 500);
-
-    //const WCHAR* wc = path;
-   // _bstr_t b(path);
-   // const char* c = b;
-    //printf("%s\n", c);
-
     try
     {
         app.run();

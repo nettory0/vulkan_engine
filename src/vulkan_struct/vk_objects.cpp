@@ -229,10 +229,7 @@ bool checkValidationLayerSupport(const std::vector<const char*>& validationLayer
 void SInstance::create(const std::vector<const char*>& aExtantion, const std::vector<const char*>& validationLayers, PFN_vkDebugUtilsMessengerCallbackEXT debugCallback)
 {
 	if(vkGetInstanceProcAddr == NULL)
-	{
 		VkResult res = volkInitialize();
-		printf("res %d\n", res);
-	}
 
 	if(m_bEnableValidationLayers && !checkValidationLayerSupport(validationLayers))
 		throw std::runtime_error("validation layers requested, but not available!");
@@ -245,16 +242,7 @@ void SInstance::create(const std::vector<const char*>& aExtantion, const std::ve
 	appInfo.pEngineName = "No Engine";
 	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion = VK_API_VERSION_1_3;
-	/*
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "App";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName = "NewEngine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_3;
-	*/
-	//VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+
 	auto extensions = aExtantion;
 	VkInstanceCreateInfo instanceInfo{.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, .pApplicationInfo = &appInfo};
 	instanceInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -329,9 +317,6 @@ void SInstance::initVolkLoadInstanceOnlyExternal(VkInstance instance)
 
 void SFrameSyncPool::createRenderFences(const VkDevice& device, int size)
 {
-	//m_imageRenderFences.resize(size);
-	//for(auto& render : m_imageRenderFences)
-	//	render.create(device);
 	m_imageRenderFences.reserve(size);
 	for(int t = 0; t < size; t++)
 	{
@@ -364,9 +349,6 @@ void SFrameSyncPool::cleanRenderFences()
 
 void SFrameSyncPool2::createRenderFences(const VkDevice& device, int size)
 {
-	//m_imageRenderFences.resize(size);
-	//for(auto& render : m_imageRenderFences)
-	//	render.create(device);
 	m_imageRenderFences.reserve(m_framesInFlight);
 	for(int t = 0; t < m_framesInFlight; t++)
 	{
@@ -1748,27 +1730,27 @@ VkSampleCountFlagBits CPhysicalDevice::getMaxUsableSampleCount()
 	VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
 	if(counts & VK_SAMPLE_COUNT_64_BIT)
 	{
-		printf("64\n"); return VK_SAMPLE_COUNT_64_BIT;
+		return VK_SAMPLE_COUNT_64_BIT;
 	}
 	if(counts & VK_SAMPLE_COUNT_32_BIT)
 	{
-		printf("32\n");  return VK_SAMPLE_COUNT_32_BIT;
+		return VK_SAMPLE_COUNT_32_BIT;
 	}
 	if(counts & VK_SAMPLE_COUNT_16_BIT)
 	{
-		printf("16\n");  return VK_SAMPLE_COUNT_16_BIT;
+		return VK_SAMPLE_COUNT_16_BIT;
 	}
 	if(counts & VK_SAMPLE_COUNT_8_BIT)
 	{
-		printf("8\n"); return VK_SAMPLE_COUNT_8_BIT;
+		return VK_SAMPLE_COUNT_8_BIT;
 	}
 	if(counts & VK_SAMPLE_COUNT_4_BIT)
 	{
-		printf("4\n"); return VK_SAMPLE_COUNT_4_BIT;
+		return VK_SAMPLE_COUNT_4_BIT;
 	}
 	if(counts & VK_SAMPLE_COUNT_2_BIT)
 	{
-		printf("2\n");  return VK_SAMPLE_COUNT_2_BIT;
+		return VK_SAMPLE_COUNT_2_BIT;
 	}
 	return VK_SAMPLE_COUNT_1_BIT;
 }
@@ -1782,7 +1764,6 @@ void SQueueFamilyIndices::findQueueFamilies(VkPhysicalDevice device, const VkSur
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
 	int i = 0;
-	printf("Queue family size %zu\n", queueFamilies.size());
 	for(const auto& queueFamily : queueFamilies)
 	{
 		if(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)

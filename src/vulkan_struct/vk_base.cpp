@@ -241,18 +241,15 @@ void CMemoryBuffer::loadMemory(size_t bufferSize, const void* dataIn, size_t off
 	VkResult res = vk.vkMapMemory(device(), handle(), offset, bufferSize, 0, &data);
 	if (res != VK_SUCCESS)
 	{
-		printf("vkMapMemory faild\n");
 		return;
 	}
 	if(dataIn == nullptr)
 	{
-		printf("dataIn faild\n");
 		vk.vkUnmapMemory(device(), handle());
 		return;
 	}
 	if (bufferSize == 0)
 	{
-		printf("bufferSize faild\n");
 		vk.vkUnmapMemory(device(), handle());
 		return;
 	}
@@ -267,12 +264,10 @@ void CMemoryBuffer::readMemory(size_t bufferSize, void* dataIn)
 	VkResult res = vk.vkMapMemory(device(), handle(), 0, bufferSize, 0, &data);
 	if (res != VK_SUCCESS)
 	{
-		printf("vkMapMemory faild\n");
 		return;
 	}
 	if(dataIn == nullptr || bufferSize == 0)
 	{
-		printf("readMemory: bad arguments\n");
 		vk.vkUnmapMemory(device(), handle());
 		return;
 	}

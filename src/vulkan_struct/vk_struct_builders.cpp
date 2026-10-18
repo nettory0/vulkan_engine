@@ -41,7 +41,6 @@ void checkResult(VkResult result, const char* obj, const char* func)
 {
 	if(result != VK_SUCCESS)
 	{
-		printf("%s::%s vk error %d\n", obj, func, result);
 		throw std::runtime_error("Failed to create Vulkan object!");
 	}
 }
