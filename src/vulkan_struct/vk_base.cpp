@@ -12,9 +12,9 @@ namespace vk_base
 
 void CLogicalDeviceBase::destroy()
 {
-	if(device())
+	if(auto deviceHandle = device())
 	{
-		vk_init::volkTable(device()).vkDestroyDevice(device(), nullptr);
+		vk_init::volkTable(deviceHandle).vkDestroyDevice(device(), nullptr);
 		vk_init::volkTableRemove(device());
 		releaseDevice();
 	}
@@ -22,8 +22,8 @@ void CLogicalDeviceBase::destroy()
 
 void CLogicalDeviceBase::waitIdle()
 {
-	if(device())
-		vk_init::volkTable(device()).vkDeviceWaitIdle(device());
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkDeviceWaitIdle(device());
 }
 
 void CLogicalDeviceBase::create(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo)
@@ -68,8 +68,8 @@ void CDebugMessenger::destroy(VkInstance instance)
 
 CDebugMessenger::~CDebugMessenger()
 {
-	 //destroy(VkInstance) ignores its parameter internally (the instance is
-	// already stored via CVkDeviceBase<VkInstance>), so this is safe.
+	//destroy(VkInstance) ignores its parameter internally (the instance is
+   // already stored via CVkDeviceBase<VkInstance>), so this is safe.
 	destroy(device());
 }
 
@@ -85,7 +85,8 @@ void CDescriptorPool::create(const VkDevice& device, const VkDescriptorPoolCreat
 
 void CDescriptorPool::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyDescriptorPool);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyDescriptorPool);
 }
 
 CDescriptorPool::~CDescriptorPool()
@@ -100,16 +101,21 @@ void CSwapchainBase::create(const VkDevice& device, const VkSwapchainCreateInfoK
 
 void CSwapchainBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroySwapchainKHR);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroySwapchainKHR);
 }
 
 std::vector<VkImage> CSwapchainBase::getSwapchainImages()
 {
-	uint32_t swapchainImageCount = 0;
-	vk_init::volkTable(device()).vkGetSwapchainImagesKHR(device(), handle(), &swapchainImageCount, NULL);
-	std::vector<VkImage> swapchainImageHandleList(swapchainImageCount);
-	vk_init::volkTable(device()).vkGetSwapchainImagesKHR(device(), handle(), &swapchainImageCount, swapchainImageHandleList.data());
-	return swapchainImageHandleList;
+	if(auto deviceHandle = device())
+	{
+		uint32_t swapchainImageCount = 0;
+		vk_init::volkTable(deviceHandle).vkGetSwapchainImagesKHR(device(), handle(), &swapchainImageCount, NULL);
+		std::vector<VkImage> swapchainImageHandleList(swapchainImageCount);
+		vk_init::volkTable(deviceHandle).vkGetSwapchainImagesKHR(device(), handle(), &swapchainImageCount, swapchainImageHandleList.data());
+		return swapchainImageHandleList;
+	}
+	return {};
 }
 
 CSwapchainBase::~CSwapchainBase()
@@ -137,7 +143,8 @@ CBufferBase& CBufferBase::operator=(CBufferBase&& other) noexcept
 VkMemoryRequirements CBufferBase::memoryRequirements()
 {
 	VkMemoryRequirements memoryRequirements;
-	vk_init::volkTable(device()).vkGetBufferMemoryRequirements(device(), handle(), &memoryRequirements);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkGetBufferMemoryRequirements(device(), handle(), &memoryRequirements);
 	return memoryRequirements;
 }
 
@@ -148,7 +155,8 @@ void CBufferBase::create(const VkDevice& device, const VkBufferCreateInfo& creat
 
 void CBufferBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyBuffer);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyBuffer);
 }
 
 CBufferBase::~CBufferBase()
@@ -159,7 +167,8 @@ CBufferBase::~CBufferBase()
 VkMemoryRequirements CImageBase::memoryRequirements()
 {
 	VkMemoryRequirements memoryRequirements;
-	vk_init::volkTable(device()).vkGetImageMemoryRequirements(device(), handle(), &memoryRequirements);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkGetImageMemoryRequirements(device(), handle(), &memoryRequirements);
 	return memoryRequirements;
 }
 
@@ -170,7 +179,8 @@ void CImageBase::create(const VkDevice& device, const VkImageCreateInfo& createI
 
 void CImageBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyImage);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyImage);
 }
 
 CImageBase::~CImageBase()
@@ -185,7 +195,8 @@ void CFramebufferBase::create(const VkDevice& device, const VkFramebufferCreateI
 
 void CFramebufferBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyFramebuffer);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyFramebuffer);
 }
 
 CFramebufferBase::~CFramebufferBase()
@@ -200,7 +211,8 @@ void CSampler::create(const VkDevice& device, const VkSamplerCreateInfo& createI
 
 void CSampler::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroySampler);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroySampler);
 }
 
 CSampler::~CSampler()
@@ -226,7 +238,8 @@ CMemoryBuffer& CMemoryBuffer::operator=(CMemoryBuffer&& other) noexcept
 
 void CMemoryBuffer::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkFreeMemory);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkFreeMemory);
 }
 
 void CMemoryBuffer::create(const VkDevice& device, const VkMemoryAllocateInfo& createInfo)
@@ -236,43 +249,49 @@ void CMemoryBuffer::create(const VkDevice& device, const VkMemoryAllocateInfo& c
 
 void CMemoryBuffer::loadMemory(size_t bufferSize, const void* dataIn, size_t offset)
 {
-	auto& vk = vk_init::volkTable(device());
-	void* data{nullptr};
-	VkResult res = vk.vkMapMemory(device(), handle(), offset, bufferSize, 0, &data);
-	if (res != VK_SUCCESS)
+	if(auto deviceHandle = device())
 	{
-		return;
-	}
-	if(dataIn == nullptr)
-	{
+		auto& vk = vk_init::volkTable(deviceHandle);
+		void* data{nullptr};
+		VkResult res = vk.vkMapMemory(device(), handle(), offset, bufferSize, 0, &data);
+		if(res != VK_SUCCESS)
+		{
+			return;
+		}
+		if(dataIn == nullptr)
+		{
+			vk.vkUnmapMemory(device(), handle());
+			return;
+		}
+		if(bufferSize == 0)
+		{
+			vk.vkUnmapMemory(device(), handle());
+			return;
+		}
+		memcpy(data, dataIn, bufferSize);
 		vk.vkUnmapMemory(device(), handle());
-		return;
 	}
-	if (bufferSize == 0)
-	{
-		vk.vkUnmapMemory(device(), handle());
-		return;
-	}
-	memcpy(data, dataIn, bufferSize);
-	vk.vkUnmapMemory(device(), handle());
 }
 
 void CMemoryBuffer::readMemory(size_t bufferSize, void* dataIn)
 {
-	auto& vk = vk_init::volkTable(device());
-	void* data{nullptr};
-	VkResult res = vk.vkMapMemory(device(), handle(), 0, bufferSize, 0, &data);
-	if (res != VK_SUCCESS)
+	if(auto deviceHandle = device())
 	{
-		return;
-	}
-	if(dataIn == nullptr || bufferSize == 0)
-	{
+		auto& vk = vk_init::volkTable(deviceHandle);
+		void* data{nullptr};
+		VkResult res = vk.vkMapMemory(device(), handle(), 0, bufferSize, 0, &data);
+		if(res != VK_SUCCESS)
+		{
+			return;
+		}
+		if(dataIn == nullptr || bufferSize == 0)
+		{
+			vk.vkUnmapMemory(device(), handle());
+			return;
+		}
+		memcpy(dataIn, data, bufferSize);
 		vk.vkUnmapMemory(device(), handle());
-		return;
 	}
-	memcpy(dataIn, data, bufferSize);
-	vk.vkUnmapMemory(device(), handle());
 }
 
 CMemoryBuffer::~CMemoryBuffer()
@@ -287,7 +306,8 @@ void CImageView::create(const VkDevice& device, const VkImageViewCreateInfo& cre
 
 void CImageView::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyImageView);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyImageView);
 }
 
 CImageView::~CImageView()
@@ -297,7 +317,8 @@ CImageView::~CImageView()
 
 void CFence::reset()
 {
-	vk_init::checkResult(vk_init::volkTable(device()).vkResetFences(device(), 1, &handle()), {typeid(CFence).name()}, {__func__});
+	if(auto deviceHandle = device())
+		vk_init::checkResult(vk_init::volkTable(deviceHandle).vkResetFences(deviceHandle, 1, &handle()), {typeid(CFence).name()}, {__func__});
 }
 
 void CFence::create(const VkDevice& device, const VkFenceCreateInfo& createInfo)
@@ -307,13 +328,17 @@ void CFence::create(const VkDevice& device, const VkFenceCreateInfo& createInfo)
 
 void CFence::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyFence);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyFence);
 }
 
 VkResult CFence::waitForFence()
 {
-	if(!isNull())
-		return vk_init::volkTable(device()).vkWaitForFences(device(), 1, &handle(), VK_TRUE, UINT64_MAX);
+	if(auto deviceHandle = device())
+	{
+		if(!isNull())
+			return vk_init::volkTable(deviceHandle).vkWaitForFences(device(), 1, &handle(), VK_TRUE, UINT64_MAX);
+	}
 	return VK_SUCCESS;
 }
 
@@ -330,21 +355,24 @@ void CQueue::getDeviceQueue(const VkDevice& device, uint32_t family)
 
 void CQueue::submit(const VkSubmitInfo& submitInfo, VkFence fence)
 {
-	if(auto result = vk_init::volkTable(device()).vkQueueSubmit(handle(), 1, &submitInfo, fence); result != VK_SUCCESS)
+	if(auto deviceHandle = device())
 	{
-		printf("%d\n", result);
-		throw std::runtime_error("failed to submit draw command buffer!");
+		if(auto result = vk_init::volkTable(deviceHandle).vkQueueSubmit(handle(), 1, &submitInfo, fence); result != VK_SUCCESS)
+			throw std::runtime_error("failed to submit draw command buffer!");
 	}
 }
 
 void CQueue::waitIdle()
 {
-	vk_init::volkTable(device()).vkQueueWaitIdle(handle());
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkQueueWaitIdle(handle());
 }
 
 VkResult CQueue::present(const VkPresentInfoKHR& presentInfo)
 {
-	return vk_init::volkTable(device()).vkQueuePresentKHR(handle(), &presentInfo);
+	if(auto deviceHandle = device())
+		return vk_init::volkTable(deviceHandle).vkQueuePresentKHR(handle(), &presentInfo);
+	return VK_ERROR_UNKNOWN;
 }
 
 void CSemaphore::create(const VkDevice& device, const VkSemaphoreCreateInfo& createInfo)
@@ -354,7 +382,8 @@ void CSemaphore::create(const VkDevice& device, const VkSemaphoreCreateInfo& cre
 
 void CSemaphore::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroySemaphore);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroySemaphore);
 }
 
 CSemaphore::~CSemaphore()
@@ -369,7 +398,8 @@ void CPipelineLayoutBase::create(const VkDevice& device, const VkPipelineLayoutC
 
 void CPipelineLayoutBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyPipelineLayout);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyPipelineLayout);
 }
 
 CPipelineLayoutBase::~CPipelineLayoutBase()
@@ -384,18 +414,23 @@ void CCommandPoolBase::create(const VkDevice& device, const VkCommandPoolCreateI
 
 void CCommandPoolBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyCommandPool);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyCommandPool);
 }
 
 void CCommandPoolBase::allocateCommandBuffer(VkCommandBufferLevel level, uint32_t size, VkCommandBuffer* pCommandBuffers)
 {
-	VkCommandBufferAllocateInfo allocInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, .commandPool = handle(), .level = level, .commandBufferCount = size};
-	vk_init::volkTable(device()).vkAllocateCommandBuffers(device(), &allocInfo, pCommandBuffers);
+	if(auto deviceHandle = device())
+	{
+		VkCommandBufferAllocateInfo allocInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, .commandPool = handle(), .level = level, .commandBufferCount = size};
+		vk_init::volkTable(deviceHandle).vkAllocateCommandBuffers(device(), &allocInfo, pCommandBuffers);
+	}
 }
 
 void CCommandPoolBase::freeCommandBuffers(uint32_t size, VkCommandBuffer* pCommand)
 {
-	vk_init::volkTable(device()).vkFreeCommandBuffers(device(), handle(), size, pCommand);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkFreeCommandBuffers(device(), handle(), size, pCommand);
 }
 
 CCommandPoolBase::~CCommandPoolBase()
@@ -428,7 +463,8 @@ void CPipelineBase::destroy()
 {
 	if(handle())
 	{
-		vk_init::volkTable(device()).vkDestroyPipeline(device(), handle(), nullptr);
+		if(auto deviceHandle = device())
+			vk_init::volkTable(deviceHandle).vkDestroyPipeline(device(), handle(), nullptr);
 		handle() = {};
 		releaseDevice();
 	}
@@ -441,8 +477,6 @@ CPipelineBase::~CPipelineBase()
 
 void CDescriptorSetBase::create(const VkDevice& device, const VkDescriptorSetAllocateInfo& allocInfo)
 {
-
-
 	setDevice(device);
 	vk_init::checkResult(vk_init::volkTable(device).vkAllocateDescriptorSets(device, &allocInfo, &m_set), typeid(CDescriptorSetBase).name(), {__func__});
 	m_pool = allocInfo.descriptorPool;
@@ -452,14 +486,16 @@ void  CDescriptorSetBase::destroy()
 {
 	if(m_set)
 	{
-		vk_init::volkTable(device()).vkFreeDescriptorSets(device(), m_pool, 1, &m_set);
+		if(auto deviceHandle = device())
+			vk_init::volkTable(deviceHandle).vkFreeDescriptorSets(device(), m_pool, 1, &m_set);
 		m_set = VK_NULL_HANDLE;
 	}
 }
 
 void CDescriptorSetBase::update(std::vector<VkWriteDescriptorSet>& aDescriptorWrites)
 {
-	vk_init::volkTable(device()).vkUpdateDescriptorSets(device(), aDescriptorWrites.size(), aDescriptorWrites.data(), 0, nullptr);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkUpdateDescriptorSets(device(), aDescriptorWrites.size(), aDescriptorWrites.data(), 0, nullptr);
 }
 
 VkDeviceSize CDescriptorSetBase::allocateDescriptorSetOffset()
@@ -481,7 +517,8 @@ void CShaderModule::create(const VkDevice& device, const VkShaderModuleCreateInf
 
 void CShaderModule::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyShaderModule);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyShaderModule);
 }
 
 CShaderModule::~CShaderModule()
@@ -496,7 +533,8 @@ void CDescriptorSetLayoutBase::create(const VkDevice& device, const VkDescriptor
 
 void CDescriptorSetLayoutBase::destroy()
 {
-	destroyVulkanObject(vk_init::volkTable(device()).vkDestroyDescriptorSetLayout);
+	if(auto deviceHandle = device())
+		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkDestroyDescriptorSetLayout);
 }
 
 CDescriptorSetLayoutBase::~CDescriptorSetLayoutBase()
@@ -506,139 +544,167 @@ CDescriptorSetLayoutBase::~CDescriptorSetLayoutBase()
 
 void CCommandBuffer::beginCommandBuffer(const VkCommandBufferBeginInfo& beginInfo)
 {
-	vk_init::checkResult(vk_init::volkTable(device()).vkBeginCommandBuffer(handle(), &beginInfo), typeid(CCommandBuffer).name(), {__func__});
+	if(auto deviceHandle = device())
+		vk_init::checkResult(vk_init::volkTable(deviceHandle).vkBeginCommandBuffer(handle(), &beginInfo), typeid(CCommandBuffer).name(), {__func__});
 }
 
 void CCommandBuffer::endCommandBuffer()
 {
-	vk_init::checkResult(vk_init::volkTable(device()).vkEndCommandBuffer(handle()), typeid(CCommandBuffer).name(), {__func__});
+	if(auto deviceHandle = device())
+		vk_init::checkResult(vk_init::volkTable(deviceHandle).vkEndCommandBuffer(handle()), typeid(CCommandBuffer).name(), {__func__});
 }
 
 void CCommandBuffer::blitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkImageBlit* pRegions, VkFilter filter)
 {
-	vk_init::volkTable(device()).vkCmdBlitImage(handle(), srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBlitImage(handle(), srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
 }
 
 void CCommandBuffer::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
 {
-	vk_init::volkTable(device()).vkCmdDispatch(handle(), groupCountX, groupCountY, groupCountZ);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdDispatch(handle(), groupCountX, groupCountY, groupCountZ);
 }
 
 void CCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo& pRenderPassBegin, VkSubpassContents subpassContents)
 {
-	vk_init::volkTable(device()).vkCmdBeginRenderPass(handle(), &pRenderPassBegin, subpassContents);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBeginRenderPass(handle(), &pRenderPassBegin, subpassContents);
 }
 
 void CCommandBuffer::beginRendering(const VkRenderingInfo* pRenderingInfo)
 {
-	vk_init::volkTable(device()).vkCmdBeginRendering(handle(), pRenderingInfo);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBeginRendering(handle(), pRenderingInfo);
 }
 
 void CCommandBuffer::endRendering()
 {
-	vk_init::volkTable(device()).vkCmdEndRendering(handle());
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdEndRendering(handle());
 }
 void CCommandBuffer::endRenderPass()
 {
-	vk_init::volkTable(device()).vkCmdEndRenderPass(handle());
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdEndRenderPass(handle());
 }
 
 void CCommandBuffer::bindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets, uint32_t dynamicOffsetCount, const uint32_t* pDynamicOffsets)
 {
-	vk_init::volkTable(device()).vkCmdBindDescriptorSets(handle(), pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBindDescriptorSets(handle(), pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
 }
 
 void CCommandBuffer::bindVertexBuffer(uint32_t firstBinding, uint32_t bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* pOffsets)
 {
-	vk_init::volkTable(device()).vkCmdBindVertexBuffers(handle(), firstBinding, bindingCount, pBuffers, pOffsets);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBindVertexBuffers(handle(), firstBinding, bindingCount, pBuffers, pOffsets);
 }
 
 void CCommandBuffer::bindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
 {
-	vk_init::volkTable(device()).vkCmdBindIndexBuffer(handle(), buffer, offset, indexType);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBindIndexBuffer(handle(), buffer, offset, indexType);
 }
 
 void CCommandBuffer::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
 {
-	vk_init::volkTable(device()).vkCmdDrawIndexed(handle(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdDrawIndexed(handle(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 void CCommandBuffer::pipelineBarrier(VkPipelineStageFlags srcStageMask,
-	VkPipelineStageFlags dstStageMask,
-	VkDependencyFlags dependencyFlags,
-	uint32_t memoryBarrierCount,
-	const VkMemoryBarrier* pMemoryBarriers,
-	uint32_t bufferMemoryBarrierCount,
-	const VkBufferMemoryBarrier* pBufferMemoryBarriers,
-	uint32_t imageMemoryBarrierCount,
-	const VkImageMemoryBarrier* pImageMemoryBarriers)
+									 VkPipelineStageFlags dstStageMask,
+									 VkDependencyFlags dependencyFlags,
+									 uint32_t memoryBarrierCount,
+									 const VkMemoryBarrier* pMemoryBarriers,
+									 uint32_t bufferMemoryBarrierCount,
+									 const VkBufferMemoryBarrier* pBufferMemoryBarriers,
+									 uint32_t imageMemoryBarrierCount,
+									 const VkImageMemoryBarrier* pImageMemoryBarriers)
 {
-	vk_init::volkTable(device()).vkCmdPipelineBarrier(handle(), srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdPipelineBarrier(handle(), srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 }
 
 void CCommandBuffer::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-	vk_init::volkTable(device()).vkCmdDraw(handle(), vertexCount, instanceCount, firstVertex, firstInstance);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdDraw(handle(), vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 void CCommandBuffer::bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
 {
-	vk_init::volkTable(device()).vkCmdBindPipeline(handle(), pipelineBindPoint, pipeline);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBindPipeline(handle(), pipelineBindPoint, pipeline);
 }
 
 void CCommandBuffer::copyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkImageCopy* pRegions)
 {
-	vk_init::volkTable(device()).vkCmdCopyImage(handle(), srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdCopyImage(handle(), srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 }
 
 void CCommandBuffer::traceRaysKHR(const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable, uint32_t width, uint32_t height, uint32_t depth)
 {
-	vk_init::volkTable(device()).vkCmdTraceRaysKHR(handle(), pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdTraceRaysKHR(handle(), pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
 }
 
 void CCommandBuffer::buildAccelerationStructuresKHR(uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
 {
-	vk_init::volkTable(device()).vkCmdBuildAccelerationStructuresKHR(handle(), infoCount, pInfos, ppBuildRangeInfos);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBuildAccelerationStructuresKHR(handle(), infoCount, pInfos, ppBuildRangeInfos);
 }
 
 void CCommandBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size)
 {
-	VkBufferCopy copyRegion{.srcOffset = srcOffset, . dstOffset = dstOffset, .size = size};
-	vk_init::volkTable(device()).vkCmdCopyBuffer(handle(), srcBuffer, dstBuffer, 1, &copyRegion);
+	if(auto deviceHandle = device())
+	{
+		VkBufferCopy copyRegion{.srcOffset = srcOffset, . dstOffset = dstOffset, .size = size};
+		vk_init::volkTable(deviceHandle).vkCmdCopyBuffer(handle(), srcBuffer, dstBuffer, 1, &copyRegion);
+	}
 }
 
 void CCommandBuffer::copyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkBufferImageCopy* pRegions)
 {
-	vk_init::volkTable(device()).vkCmdCopyBufferToImage(handle(), srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdCopyBufferToImage(handle(), srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
 }
 
 void CCommandBuffer::pushConstant(VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* pValues)
 {
-	vk_init::volkTable(device()).vkCmdPushConstants(handle(), layout, stageFlags, offset, size, pValues);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdPushConstants(handle(), layout, stageFlags, offset, size, pValues);
 }
 
 void CCommandBuffer::setViewport(uint32_t firstViewport, uint32_t viewportCount, const VkViewport* pViewports)
 {
-	vk_init::volkTable(device()).vkCmdSetViewport(handle(), firstViewport, viewportCount, pViewports);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdSetViewport(handle(), firstViewport, viewportCount, pViewports);
 }
 
 void CCommandBuffer::setScissor(uint32_t firstScissor, uint32_t scissorCount, const VkRect2D* pScissors)
 {
-	vk_init::volkTable(device()).vkCmdSetScissor(handle(), firstScissor, scissorCount, pScissors);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdSetScissor(handle(), firstScissor, scissorCount, pScissors);
 }
 
 void CCommandBuffer::bindDescriptorBuffersEXT(uint32_t bufferCount, const VkDescriptorBufferBindingInfoEXT* pBindingInfos)
 {
-	vk_init::volkTable(device()).vkCmdBindDescriptorBuffersEXT(handle(), bufferCount, pBindingInfos);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdBindDescriptorBuffersEXT(handle(), bufferCount, pBindingInfos);
 }
 void CCommandBuffer::setDescriptorBufferOffsetsEXT(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t setCount, const uint32_t* pBufferIndices, const VkDeviceSize* pOffsets)
 {
-	vk_init::volkTable(device()).vkCmdSetDescriptorBufferOffsetsEXT(handle(), pipelineBindPoint, layout, firstSet, setCount, pBufferIndices, pOffsets);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdSetDescriptorBufferOffsetsEXT(handle(), pipelineBindPoint, layout, firstSet, setCount, pBufferIndices, pOffsets);
 }
 
 void CCommandBuffer::pipelineBarrier2(const VkDependencyInfo* pDependencyInfo)
 {
-	vk_init::volkTable(device()).vkCmdPipelineBarrier2(handle(), pDependencyInfo);
+	if(auto deviceHandle = device())
+		vk_init::volkTable(deviceHandle).vkCmdPipelineBarrier2(handle(), pDependencyInfo);
 }
 
 
