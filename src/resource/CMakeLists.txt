@@ -1,5 +1,5 @@
-﻿set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/models")
-set(DEST_DIR "${CMAKE_BINARY_DIR}/bin/models")
+﻿set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(DEST_DIR "${CMAKE_BINARY_DIR}/bin")
 
 add_custom_target(copy_data
     COMMAND ${CMAKE_COMMAND} -E make_directory "${DEST_DIR}"
