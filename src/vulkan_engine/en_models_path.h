@@ -2,7 +2,7 @@
 #include "asset_loader.h"
 
 
-const std::string texture_PATH_FLOOR = "models/floor.png";
+const std::string texture_PATH_FLOOR = "models/textures/floor.png";
 
 
 

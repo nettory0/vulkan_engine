@@ -26,7 +26,7 @@ SReadResult CAssetLoader::load2()
 {
 	SReadResult result;
 
-	YAML::Node root = YAML::LoadFile("models/config_saved.yaml")["root"];
+	YAML::Node root = YAML::LoadFile("config_saved.yaml")["root"];
 
 	if(YAML::Node modelSet = root["modelSet"])
 	{
