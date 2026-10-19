@@ -58,7 +58,7 @@ SReadResult CAssetLoader::load2()
 
 void CAssetWriter::save()
 {
-
+	return;
 	YAML::Node root;
 
 	// modelSet
