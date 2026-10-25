@@ -39,6 +39,7 @@ public:
 	void setJumpSpeed(float speed);
 	void jump();
 	void setWalkDirection(glm::vec3 direction);
+	void setWalkSpeed(float speed);
 	void updateWalk();
 	glm::vec3 getOrigin() const;
 	void setbtKinematicCharacter(std::unique_ptr<btKinematicCharacterController>&& pKinematicCharacter);
@@ -57,6 +58,7 @@ private:
 
 	std::unique_ptr<btKinematicCharacterController> m_pKinematicCharacter;
 	glm::vec3 m_direction;
+	float m_walkSpeed{0.1f};
 };
 
 
@@ -75,6 +77,7 @@ public:
 	glm::vec3 characterOrigin() const override final;
 	glm::mat4 characterRotation() const override final;
 	void setWalkDirection(glm::vec3 dir) override final;
+	void setWalkSpeed(float speed) override final;
 	bool canJump() override final;
 	void jump() override final;
 	void updateRotation(glm::mat4 mat) override final;

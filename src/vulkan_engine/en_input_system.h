@@ -11,6 +11,7 @@ enum class EKey: int
     D,
     SPACE,
     LEFT_CTRL,
+    LEFT_SHIFT,
     ESCAPE,
     eMouseRight,
     eMouseLeft,

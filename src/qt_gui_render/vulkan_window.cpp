@@ -121,6 +121,7 @@ inline EKey QtKeyToEKey(int qtKey)
 	case Qt::Key_D: return EKey::D;
 	case Qt::Key_Space: return EKey::SPACE;
 	case Qt::Key_Control: return EKey::LEFT_CTRL;
+	case Qt::Key_Shift: return EKey::LEFT_SHIFT;
 	case Qt::Key_Escape: return EKey::ESCAPE;
 
 	default: return EKey::UNKNOWN;

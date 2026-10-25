@@ -16,6 +16,8 @@ inline EKey GLFWKeyToEKey(int glfwKey)
 	case GLFW_KEY_D: return EKey::D;
 	case GLFW_KEY_SPACE: return EKey::SPACE;
 	case GLFW_KEY_LEFT_CONTROL: return EKey::LEFT_CTRL;
+	case GLFW_KEY_LEFT_SHIFT:
+	case GLFW_KEY_RIGHT_SHIFT: return EKey::LEFT_SHIFT;
 	case GLFW_MOUSE_BUTTON_RIGHT: return EKey::eMouseRight;
 	case GLFW_MOUSE_BUTTON_LEFT: return EKey::eMouseLeft;
 	case GLFW_MOUSE_BUTTON_MIDDLE: return EKey::eMouseMiddle;

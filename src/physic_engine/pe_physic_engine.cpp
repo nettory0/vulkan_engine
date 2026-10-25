@@ -64,6 +64,12 @@ void CPhysicsEngine::setWalkDirection(glm::vec3 dir)
 		m_pEngine->setWalkDirection(dir);
 }
 
+void CPhysicsEngine::setWalkSpeed(float speed)
+{
+	if(m_pEngine)
+		m_pEngine->setWalkSpeed(speed);
+}
+
 bool CPhysicsEngine::canJump()
 {
 	if(m_pEngine)

@@ -24,6 +24,11 @@ inline EKey sdlKeyToEKey(int key)
 	case SDLK_RCTRL:
 	return EKey::LEFT_CTRL;
 
+		// Shift
+	case SDLK_LSHIFT:
+	case SDLK_RSHIFT:
+	return EKey::LEFT_SHIFT;
+
 	default:
 	return EKey::UNKNOWN;
 	}

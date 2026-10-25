@@ -23,6 +23,8 @@ public:
 	glm::vec3 characterOrigin() const;
 	glm::mat4 characterRotation() const;
 	void setWalkDirection(glm::vec3 dir);
+	// Distance per fixed simulation tick (1/60 s).
+	void setWalkSpeed(float speed);
 	bool canJump();
 	void jump();
 	void updateRotation(glm::mat4 mat);

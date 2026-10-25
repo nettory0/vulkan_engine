@@ -326,25 +326,32 @@ void CEngine::handleKeyInput(EKey key, int scancode, int action, int mods)
 		const glm::vec3 forward{std::cos(yaw), 0.0f, std::sin(yaw)};
 		const glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
 
+		// Walk by default, run while Shift is held. Speeds are distance per physics tick (1/60 s).
+		constexpr float kWalkSpeed = 0.04f;
+		constexpr float kRunSpeed = 0.1f;
+		const bool bRun = m_inputSystem.isKeyPressed(EKey::LEFT_SHIFT);
+		m_physicsEngine.setWalkSpeed(bRun ? kRunSpeed : kWalkSpeed);
+		const std::string moveAction = bRun ? "Running" : "Walking";
+
 		if(bW)
 		{
 			deltaMove += cameraSpeed * speed * forward;
-			playerAction = {"Running"};
+			playerAction = moveAction;
 		}
 		if(bS)
 		{
 			deltaMove += -cameraSpeed * speed * forward;
-			playerAction = {"Running"};
+			playerAction = moveAction;
 		}
 		if(bA)
 		{
 			deltaMove += -right * speed * cameraSpeed;
-			playerAction = {"Running"};
+			playerAction = moveAction;
 		}
 		if(bD)
 		{
 			deltaMove += right * speed * cameraSpeed;
-			playerAction = {"Running"};
+			playerAction = moveAction;
 		}
 
 		if(bW && bA)       deltaOrientation = 45.0;

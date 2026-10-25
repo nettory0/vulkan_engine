@@ -186,6 +186,12 @@ void CEngineImpl::setWalkDirection(glm::vec3 dir)
 		m_pCharacter->setWalkDirection(dir);
 }
 
+void CEngineImpl::setWalkSpeed(float speed)
+{
+	if(m_pCharacter)
+		m_pCharacter->setWalkSpeed(speed);
+}
+
 bool CEngineImpl::canJump()
 {
 	if(m_pCharacter)
@@ -248,10 +254,14 @@ void CCharacter::setWalkDirection(glm::vec3 direction)
 	m_direction = len > 1e-6f ? direction / len : glm::vec3{0.0f};
 }
 
+void CCharacter::setWalkSpeed(float speed)
+{
+	m_walkSpeed = speed;
+}
+
 void CCharacter::updateWalk()
 {
-	const float speed = 0.1;
-	m_pKinematicCharacter->setWalkDirection(btVector3(m_direction.x, m_direction.y, m_direction.z) * speed);
+	m_pKinematicCharacter->setWalkDirection(btVector3(m_direction.x, m_direction.y, m_direction.z) * m_walkSpeed);
 }
 
 glm::vec3 CCharacter::getOrigin() const
