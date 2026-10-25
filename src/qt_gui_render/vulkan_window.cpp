@@ -138,6 +138,9 @@ void CVulkanWindow::keyPressEvent(QKeyEvent* pEvent)
 void CVulkanWindow::keyReleaseEvent(QKeyEvent* pEvent)
 {
 	QWindow::keyReleaseEvent(pEvent);
+	// Qt auto-repeat sends release+press pairs while a key is held - the key is not really released.
+	if(pEvent->isAutoRepeat())
+		return;
 	if(m_pVulkan)
 		m_pVulkan->handleKeyInput(QtKeyToEKey(pEvent->key()), -1, false, -1);
 }

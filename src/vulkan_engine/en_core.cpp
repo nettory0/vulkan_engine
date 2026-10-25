@@ -294,6 +294,13 @@ void CEngine::handleKeyInput(EKey key, int scancode, int action, int mods)
 	auto* pCamera2 = m_sceneComponents.componentManager().getComponent<COrbitCamera>(m_camera_2);
 	m_inputSystem.keyCallback(key, scancode, action, mods);
 
+	// One jump per Space press: only the press itself counts, so holding Space (and the OS key repeat
+	// events it produces) never re-jumps after landing. A press in the air is consumed too.
+	// Tracked for every event, so a release while not simulating is not missed.
+	const bool bSpace = m_inputSystem.isKeyPressed(EKey::SPACE);
+	const bool bSpacePressedNow = bSpace && !m_bJumpKeyLatched;
+	m_bJumpKeyLatched = bSpace;
+
 	if(!m_bSimulation)
 	{
 		if(m_inputSystem.isKeyPressed(EKey::eMouseLeft))
@@ -377,7 +384,7 @@ void CEngine::handleKeyInput(EKey key, int scancode, int action, int mods)
 
 		// The jump animation starts only on a real jump (Space on the ground) - not just because the
 		// character is in the air (e.g. falling right after spawn). It plays once, see updateJump().
-		if(m_inputSystem.isKeyPressed(EKey::SPACE) && !m_bJumping && m_physicsEngine.canJump())
+		if(bSpacePressedNow && !m_bJumping && m_physicsEngine.canJump())
 		{
 			m_physicsEngine.jump();
 			m_bJumping = true;

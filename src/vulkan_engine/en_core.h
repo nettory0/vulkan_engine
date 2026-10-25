@@ -104,6 +104,7 @@ private:
 	// Jump state: the jump animation runs from a Space press until landing.
 	bool m_bJumping{false};
 	bool m_bJumpLeftGround{false};
+	bool m_bJumpKeyLatched{false}; // Space was already down on the previous key event
 	float m_jumpTime{0.0f};
 	std::string m_moveAction{"Idle"};
 };
