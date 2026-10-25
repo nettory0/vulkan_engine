@@ -30,6 +30,49 @@ const VolkDeviceTable& volkTable(void* device)
 	return table;
 }
 
+static inline std::map<void*, VmaAllocator> vmaAllocators;
+
+VmaAllocator vmaAllocatorAdd(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device)
+{
+	if(auto it = vmaAllocators.find(device); it != vmaAllocators.end())
+		return it->second;
+
+	// VK_NO_PROTOTYPES + volk: VMA fetches all other entry points through these two.
+	VmaVulkanFunctions vulkanFunctions{};
+	vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+	vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+
+	VmaAllocatorCreateInfo allocatorInfo{};
+	allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+	allocatorInfo.instance = instance;
+	allocatorInfo.physicalDevice = physicalDevice;
+	allocatorInfo.device = device;
+	allocatorInfo.pVulkanFunctions = &vulkanFunctions;
+
+	VmaAllocator allocator{VK_NULL_HANDLE};
+	checkResult(vmaCreateAllocator(&allocatorInfo, &allocator), "VmaAllocator", __func__);
+	vmaAllocators[device] = allocator;
+	return allocator;
+}
+
+void vmaAllocatorRemove(void* device)
+{
+	if(auto it = vmaAllocators.find(device); it != vmaAllocators.end())
+	{
+		vmaDestroyAllocator(it->second);
+		vmaAllocators.erase(it);
+	}
+}
+
+VmaAllocator vmaAllocator(void* device)
+{
+	auto it = vmaAllocators.find(device);
+	if(it != vmaAllocators.end())
+		return it->second;
+	throw std::runtime_error("VmaAllocator is not created for this device!");
+}
+
 
 VkResult acquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout, VkSemaphore semaphore, VkFence fence, uint32_t* pImageIndex)
 {

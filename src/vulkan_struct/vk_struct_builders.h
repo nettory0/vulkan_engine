@@ -1,6 +1,7 @@
 #pragma once
 #include "vk_export.h"
 #include "volk.h"
+#include "vk_mem_alloc.h"
 
 
 namespace vk_init
@@ -9,6 +10,11 @@ namespace vk_init
 VULKAN_STRUCT VolkDeviceTable& volkTableAdd(void* device);
 VULKAN_STRUCT void volkTableRemove(void*);
 VULKAN_STRUCT const VolkDeviceTable& volkTable(void*);
+
+// One VMA allocator per logical device, created/destroyed together with the device.
+VULKAN_STRUCT VmaAllocator vmaAllocatorAdd(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device);
+VULKAN_STRUCT void vmaAllocatorRemove(void* device);
+VULKAN_STRUCT VmaAllocator vmaAllocator(void* device);
 
 VULKAN_STRUCT void checkResult(VkResult result, const char* obj, const char* func);
 

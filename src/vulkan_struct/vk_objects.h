@@ -92,9 +92,14 @@ public:
     {
         return m_buffer.handle();
     };
-    const VkDeviceMemory& memory() const
+    // Memory is suballocated by VMA: the buffer lives at memoryOffset() inside memory().
+    VkDeviceMemory memory() const
     {
-        return m_bufferMemory.handle();
+        return m_bufferMemory.deviceMemory();
+    };
+    VkDeviceSize memoryOffset() const
+    {
+        return m_bufferMemory.offset();
     };
     VkDeviceSize size() const
     {
@@ -254,7 +259,7 @@ public:
 
     void createImageView(const VkDevice& device, VkImageViewCreateInfo& viewInfo);
     const VkImage& handle() const;
-    const VkDeviceMemory& memory() const;
+    VkDeviceMemory memory() const;
     const VkImageView& view() const;
     static VkImageViewCreateInfo defaultcreateCreateInfo(VkImage image, const VkDevice& device, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 private:

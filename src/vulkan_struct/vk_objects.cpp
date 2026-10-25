@@ -17,6 +17,19 @@ const bool m_bEnableValidationLayers{true};
 
 namespace vk_structs
 {
+
+// Keeps the old "exact property flags" semantics of findMemoryType: VMA must pick a memory type
+// that has all `properties`. Host-visible memory stays persistently mapped, so load()/read()
+// don't map/unmap on every call.
+static VmaAllocationCreateInfo allocationCreateInfo(VkMemoryPropertyFlags properties)
+{
+	VmaAllocationCreateInfo allocInfo{};
+	allocInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
+	allocInfo.requiredFlags = properties;
+	if(properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+		allocInfo.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+	return allocInfo;
+}
 void CCommandPool::create(const VkDevice& device, VkCommandPoolCreateFlags flags, uint32_t  queueFamilyIndices, const int size)
 {
 	VkCommandPoolCreateInfo poolInfo{.sType{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO}, .pNext = NULL, .flags = flags, .queueFamilyIndex{queueFamilyIndices}};
@@ -1382,7 +1395,7 @@ void CImage::clean()
 
 void CImage::bind(const VkDevice& device)
 {
-	vk_init::volkTable(device).vkBindImageMemory(device, m_image.handle(), m_imageMemory.handle(), 0);
+	m_imageMemory.bindImage(m_image.handle());
 }
 
 void CImage::createImage(const VkDevice& device, const SSupportDetails& details, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
@@ -1394,11 +1407,15 @@ void CImage::createImage(const VkDevice& device, const SSupportDetails& details,
 	create(device, details, imageInfo, nullptr, properties);
 }
 
+// memoryAllocateFlagsInfo is no longer used: VMA picks the memory type and allocate flags itself.
 void CImage::create(const VkDevice& device, const SSupportDetails& details, const VkImageCreateInfo& rayTraceImageCreateInfo, const void* memoryAllocateFlagsInfo, VkMemoryPropertyFlags properties)
 {
 	m_image.create(device, rayTraceImageCreateInfo);
-	VkMemoryRequirements memoryRequirements{m_image.memoryRequirements()};
-	m_imageMemory.create(device, vk_init::memoryAllocateInfo(memoryAllocateFlagsInfo, memoryRequirements.size, details.findMemoryType(memoryRequirements.memoryTypeBits, properties)));
+	VmaAllocationCreateInfo allocInfo{allocationCreateInfo(properties)};
+	// Render targets are recreated on resize - give them their own block so they don't fragment the pools.
+	if(rayTraceImageCreateInfo.usage & (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT))
+		allocInfo.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+	m_imageMemory.createForImage(device, m_image.handle(), allocInfo);
 	bind(device);
 }
 
@@ -1412,9 +1429,9 @@ const VkImage& CImage::handle() const
 	return m_image.handle();
 };
 
-const VkDeviceMemory& CImage::memory() const
+VkDeviceMemory CImage::memory() const
 {
-	return m_imageMemory.handle();
+	return m_imageMemory.deviceMemory();
 }
 const VkImageView& CImage::view() const
 {
@@ -1809,16 +1826,18 @@ CBuffer::~CBuffer()
 	clean();
 }
 
+// memoryAllocateFlagsInfo is no longer passed to the driver: the allocator is created with
+// VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT, so VMA adds VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
+// for every buffer with VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT.
 void CBuffer::create(const VkDevice& device, const SSupportDetails& details, const VkBufferCreateInfo& bufferInfo, const VkMemoryAllocateFlagsInfo* memoryAllocateFlagsInfo, VkMemoryPropertyFlags properties)
 {
 	m_device = device;
 	m_bufferSize = bufferInfo.size;
 	m_buffer.create(device, bufferInfo);
-	VkMemoryRequirements memoryRequirements{m_buffer.memoryRequirements()};
-	m_bufferMemory.create(device, vk_init::memoryAllocateInfo(memoryAllocateFlagsInfo, memoryRequirements.size, details.findMemoryType(memoryRequirements.memoryTypeBits, properties)));
+	m_bufferMemory.createForBuffer(device, m_buffer.handle(), allocationCreateInfo(properties));
 	bindBufferMemory(device);
 
-	if(memoryAllocateFlagsInfo && bufferInfo.usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT && memoryAllocateFlagsInfo->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
+	if(bufferInfo.usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
 	{
 		VkBufferDeviceAddressInfo info = vk_init::bufferDeviceAddressInfo(nullptr, handle());
 		m_adress = vk_init::volkTable(device).vkGetBufferDeviceAddressKHR(device, &info);
@@ -1836,7 +1855,7 @@ void CBuffer::clean()
 
 void CBuffer::bindBufferMemory(const VkDevice& device)
 {
-	vk_init::volkTable(device).vkBindBufferMemory(device, m_buffer.handle(), m_bufferMemory.handle(), 0);
+	m_bufferMemory.bindBuffer(m_buffer.handle());
 }
 
 void CBuffer::load(size_t size, const void* pData, size_t offset)

@@ -14,6 +14,8 @@ void CLogicalDeviceBase::destroy()
 {
 	if(auto deviceHandle = device())
 	{
+		// All VMA allocations must be freed by now - the allocator goes before the device.
+		vk_init::vmaAllocatorRemove(device());
 		vk_init::volkTable(deviceHandle).vkDestroyDevice(device(), nullptr);
 		vk_init::volkTableRemove(device());
 		releaseDevice();
@@ -32,6 +34,7 @@ void CLogicalDeviceBase::create(VkPhysicalDevice physicalDevice, const VkDeviceC
 	vk_init::checkResult(vkCreateDevice(physicalDevice, &createInfo, nullptr, &newDevice), typeid(CLogicalDeviceBase).name(), {__func__});
 	setDevice(newDevice);
 	volkLoadDeviceTable(&vk_init::volkTableAdd(device()), device());
+	vk_init::vmaAllocatorAdd(volkGetLoadedInstance(), physicalDevice, device());
 }
 
 CLogicalDeviceBase::~CLogicalDeviceBase()
@@ -237,37 +240,69 @@ CMemoryBuffer& CMemoryBuffer::operator=(CMemoryBuffer&& other) noexcept
 void CMemoryBuffer::destroy()
 {
 	if(auto deviceHandle = device())
-		destroyVulkanObject(vk_init::volkTable(deviceHandle).vkFreeMemory);
+	{
+		if(handle())
+			vmaFreeMemory(vk_init::vmaAllocator(deviceHandle), handle());
+		m_handle = VK_NULL_HANDLE;
+		releaseDevice();
+	}
 }
 
-void CMemoryBuffer::create(const VkDevice& device, const VkMemoryAllocateInfo& createInfo)
+void CMemoryBuffer::createForBuffer(const VkDevice& device, VkBuffer buffer, const VmaAllocationCreateInfo& createInfo)
 {
-	createVulkanObject(vk_init::volkTable(device).vkAllocateMemory, &createInfo, device);
+	setDevice(device);
+	vk_init::checkResult(vmaAllocateMemoryForBuffer(vk_init::vmaAllocator(device), buffer, &createInfo, &m_handle, nullptr), typeid(CMemoryBuffer).name(), {__func__});
 }
 
+void CMemoryBuffer::createForImage(const VkDevice& device, VkImage image, const VmaAllocationCreateInfo& createInfo)
+{
+	setDevice(device);
+	vk_init::checkResult(vmaAllocateMemoryForImage(vk_init::vmaAllocator(device), image, &createInfo, &m_handle, nullptr), typeid(CMemoryBuffer).name(), {__func__});
+}
+
+void CMemoryBuffer::bindBuffer(VkBuffer buffer)
+{
+	if(auto deviceHandle = device())
+		vk_init::checkResult(vmaBindBufferMemory(vk_init::vmaAllocator(deviceHandle), handle(), buffer), typeid(CMemoryBuffer).name(), {__func__});
+}
+
+void CMemoryBuffer::bindImage(VkImage image)
+{
+	if(auto deviceHandle = device())
+		vk_init::checkResult(vmaBindImageMemory(vk_init::vmaAllocator(deviceHandle), handle(), image), typeid(CMemoryBuffer).name(), {__func__});
+}
+
+VkDeviceMemory CMemoryBuffer::deviceMemory() const
+{
+	if(auto deviceHandle = device(); deviceHandle && handle())
+	{
+		VmaAllocationInfo info{};
+		vmaGetAllocationInfo(vk_init::vmaAllocator(deviceHandle), handle(), &info);
+		return info.deviceMemory;
+	}
+	return VK_NULL_HANDLE;
+}
+
+VkDeviceSize CMemoryBuffer::offset() const
+{
+	if(auto deviceHandle = device(); deviceHandle && handle())
+	{
+		VmaAllocationInfo info{};
+		vmaGetAllocationInfo(vk_init::vmaAllocator(deviceHandle), handle(), &info);
+		return info.offset;
+	}
+	return 0;
+}
+
+// vmaCopy* map (refcounted, no-op for persistently mapped allocations), copy and flush/invalidate
+// non-coherent memory, and take the allocation's offset inside the VkDeviceMemory block into account.
 void CMemoryBuffer::loadMemory(size_t bufferSize, const void* dataIn, size_t offset)
 {
 	if(auto deviceHandle = device())
 	{
-		auto& vk = vk_init::volkTable(deviceHandle);
-		void* data{nullptr};
-		VkResult res = vk.vkMapMemory(device(), handle(), offset, bufferSize, 0, &data);
-		if(res != VK_SUCCESS)
-		{
+		if(dataIn == nullptr || bufferSize == 0 || !handle())
 			return;
-		}
-		if(dataIn == nullptr)
-		{
-			vk.vkUnmapMemory(device(), handle());
-			return;
-		}
-		if(bufferSize == 0)
-		{
-			vk.vkUnmapMemory(device(), handle());
-			return;
-		}
-		memcpy(data, dataIn, bufferSize);
-		vk.vkUnmapMemory(device(), handle());
+		vmaCopyMemoryToAllocation(vk_init::vmaAllocator(deviceHandle), dataIn, handle(), offset, bufferSize);
 	}
 }
 
@@ -275,20 +310,9 @@ void CMemoryBuffer::readMemory(size_t bufferSize, void* dataIn)
 {
 	if(auto deviceHandle = device())
 	{
-		auto& vk = vk_init::volkTable(deviceHandle);
-		void* data{nullptr};
-		VkResult res = vk.vkMapMemory(device(), handle(), 0, bufferSize, 0, &data);
-		if(res != VK_SUCCESS)
-		{
+		if(dataIn == nullptr || bufferSize == 0 || !handle())
 			return;
-		}
-		if(dataIn == nullptr || bufferSize == 0)
-		{
-			vk.vkUnmapMemory(device(), handle());
-			return;
-		}
-		memcpy(dataIn, data, bufferSize);
-		vk.vkUnmapMemory(device(), handle());
+		vmaCopyAllocationToMemory(vk_init::vmaAllocator(deviceHandle), handle(), 0, dataIn, bufferSize);
 	}
 }
 

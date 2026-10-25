@@ -129,7 +129,8 @@ public:
 	~CSampler();
 };
 
-class VULKAN_STRUCT CMemoryBuffer: public CVulkanObject<VkDeviceMemory, VkDevice, VkMemoryAllocateInfo>
+// Memory block suballocated by the device's VmaAllocator (see vk_init::vmaAllocator).
+class VULKAN_STRUCT CMemoryBuffer: public CVulkanObject<VmaAllocation, VkDevice, VmaAllocationCreateInfo>
 {
 public:
 	CMemoryBuffer() = default;
@@ -137,7 +138,12 @@ public:
 	CMemoryBuffer& operator=(const CMemoryBuffer&) = delete;
 	CMemoryBuffer(CMemoryBuffer&&) noexcept;
 	CMemoryBuffer& operator=(CMemoryBuffer&&) noexcept;
-	void create(const VkDevice& device, const VkMemoryAllocateInfo& allocInfo);
+	void createForBuffer(const VkDevice& device, VkBuffer buffer, const VmaAllocationCreateInfo& allocInfo);
+	void createForImage(const VkDevice& device, VkImage image, const VmaAllocationCreateInfo& allocInfo);
+	void bindBuffer(VkBuffer buffer);
+	void bindImage(VkImage image);
+	VkDeviceMemory deviceMemory() const;
+	VkDeviceSize offset() const;
 	void destroy();
 	void loadMemory(size_t bufferSize, const void* dataIn, size_t offset);
 	void readMemory(size_t bufferSize, void* dataIn);

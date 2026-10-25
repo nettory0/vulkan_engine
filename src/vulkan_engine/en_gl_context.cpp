@@ -3,6 +3,8 @@
 #include "en_gl_descriptor_manager.h"
 #include "en_gl_utils.h"
 #include "en_animation_structs.h"
+#include <format>
+#include "co_logging.h"
 
 //#define RT_EXTENTIONS
 
@@ -136,7 +138,12 @@ SQueueByType& CVulkanContext::queue()
 void CDeviceManager::init(const VkInstance& instance, const VkSurfaceKHR& surface, const std::vector<const char*>& deviceExtensions, bool bRt)
 {
 	auto aDevices = vk_structs::CPhysicalDevice::pickPhysicalDevices(instance, surface, deviceExtensions);//3
-
+	if(aDevices.empty())
+	{
+		constexpr auto kNoDeviceMsg = "Failed to find a suitable device!";
+		common::logError(kNoDeviceMsg);
+		throw std::runtime_error(kNoDeviceMsg);
+	}
 	m_aDevice.reserve(aDevices.size());
 	for(auto& device : aDevices)
 	{

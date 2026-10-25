@@ -22,7 +22,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
 if(TARGET VulkanMemoryAllocator)
-    set_target_properties(volk PROPERTIES FOLDER "External")
+    set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "External")
 endif()
 
 if(TARGET volk)
@@ -40,6 +40,7 @@ add_library(vulkan_struct SHARED
 	vk_objects.h
 	vk_object_template.h
 	vk_export.h
+	vk_mem_alloc_impl.cpp
 )
 
 set_target_properties(vulkan_struct PROPERTIES FOLDER "Project")
@@ -56,6 +57,9 @@ set_target_properties(vulkan_struct PROPERTIES
 target_compile_definitions(vulkan_struct
     PRIVATE VULKAN_STRUCT_EXPORTS
     PUBLIC VK_NO_PROTOTYPES
+    # No static Vulkan prototypes (volk) - VMA loads entry points via vkGetInstanceProcAddr/vkGetDeviceProcAddr
+    PUBLIC VMA_STATIC_VULKAN_FUNCTIONS=0
+    PUBLIC VMA_DYNAMIC_VULKAN_FUNCTIONS=1
 )
 
 target_include_directories(vulkan_struct
@@ -65,6 +69,7 @@ target_include_directories(vulkan_struct
 
 target_link_libraries(vulkan_struct
     PRIVATE volk
-    PRIVATE VulkanMemoryAllocator
+    # Public: vk_mem_alloc.h is included from vk_struct_builders.h
+    PUBLIC VulkanMemoryAllocator
     PRIVATE Vulkan::Vulkan
 )
