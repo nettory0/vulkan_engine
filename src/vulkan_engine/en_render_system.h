@@ -87,6 +87,9 @@ class CPipelineSystem
 public:
 	void createPipeRayTracing(VkDevice device);
 	void createPipe3d(VkDevice device, VkSampleCountFlagBits msaaSamples, VkRenderPass renderPass, const vk_structs::SSupportDetails& details);
+	// Pipelines only, reusing the layouts created by createPipeRayTracing / createPipe3d.
+	void createPipelinesRayTracing(VkDevice device);
+	void createPipelines3d(VkDevice device, VkSampleCountFlagBits msaaSamples, VkRenderPass renderPass, const vk_structs::SSupportDetails& details);
 	void clear();
 public:
 	en_vk::CPipelineManager m_graphicPipelineManager;

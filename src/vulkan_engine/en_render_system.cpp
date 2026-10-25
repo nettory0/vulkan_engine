@@ -170,12 +170,23 @@ void CRenderSystem::endRendering(vk_base::CCommandBuffer& command, vk_structs::S
 void CPipelineSystem::createPipeRayTracing(VkDevice device)
 {
 	m_graphicPipelineLayoutManager.createRayTracingLayout(device);
+	createPipelinesRayTracing(device);
+}
+
+void CPipelineSystem::createPipelinesRayTracing(VkDevice device)
+{
 	m_graphicPipelineManager.createRayTracingPipeline(device, m_graphicPipelineLayoutManager.getLayout(en_vk_utils::EPipelineLayoutType::eRt).layout());
 }
 
 void CPipelineSystem::createPipe3d(VkDevice device, VkSampleCountFlagBits msaaSamples, VkRenderPass renderPass, const vk_structs::SSupportDetails& details)
 {
 	m_graphicPipelineLayoutManager.createGraphicsPipelineLayouts(device);
+	createPipelines3d(device, msaaSamples, renderPass, details);
+}
+
+// Pipelines only, with the existing layouts.
+void CPipelineSystem::createPipelines3d(VkDevice device, VkSampleCountFlagBits msaaSamples, VkRenderPass renderPass, const vk_structs::SSupportDetails& details)
+{
 	m_graphicPipelineManager.createPipeline3D(device, msaaSamples, renderPass, details, m_graphicPipelineLayoutManager.getLayout(en_vk_utils::EPipelineLayoutType::e3d).layout());
 	m_graphicPipelineManager.createPipeline2D(device, msaaSamples, renderPass, details, m_graphicPipelineLayoutManager.getLayout(en_vk_utils::EPipelineLayoutType::e2d).layout());
 	m_graphicPipelineManager.createPipeline2DInterface(device, msaaSamples, renderPass, details, m_graphicPipelineLayoutManager.getLayout(en_vk_utils::EPipelineLayoutType::e2dInterface).layout());
@@ -389,15 +400,16 @@ void CRenderSystem::recreateSwapchain()
 	m_frameSystem.m_renderFrame.destroy();
 	m_frameSystem.m_renderFrame2.destroy();
 	m_frameSystem.m_computeFrame.destroy();
+	// Only pipelines are rebuilt (they bake viewport and formats). Pipeline/descriptor set layouts are kept:
+	// CDescriptorLayoutCache and the existing descriptor buffers hold their VkDescriptorSetLayout handles.
 	m_pipelineManager.m_graphicPipelineManager.clear();
-	m_pipelineManager.m_graphicPipelineLayoutManager.clear();
-	
+
 	m_context.initDetails();
 	createSecond(m_bRayTracing);
 	if(m_bRayTracing)
-		m_pipelineManager.createPipeRayTracing(m_context.logicalDevice().handle());
+		m_pipelineManager.createPipelinesRayTracing(m_context.logicalDevice().handle());
 	else
-		m_pipelineManager.createPipe3d(m_context.logicalDevice().handle(), m_context.m_msaaSamples, nullptr, m_context.details());
+		m_pipelineManager.createPipelines3d(m_context.logicalDevice().handle(), m_context.m_msaaSamples, nullptr, m_context.details());
 	m_bNeedUpdateFrame = true;
 }
 
