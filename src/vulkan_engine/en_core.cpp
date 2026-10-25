@@ -271,8 +271,11 @@ void CEngine::handleMouseMove(double x, double y)
 		else if(m_inputSystem.isKeyPressed(EKey::eMouseRight))
 			pCamera2->rotate(deltaMove.x, deltaMove.y);
 
-		auto frameUbo = buildFrameRenderData({x, y});
-		if(auto highlighted = m_renderSystem.rayPick(frameUbo); highlighted != UINT32_MAX)
+		// rayPick needs only camera/compute data. buildFrameRenderData would also prepare the interface
+		// (creating GPU resources) on every mouse event.
+		SFrameRenderData pickData;
+		fillCameraData(pickData, {x, y});
+		if(auto highlighted = m_renderSystem.rayPick(pickData); highlighted != UINT32_MAX)
 		{
 			m_selectSystem.setHighlighted(highlighted);
 		}
@@ -403,11 +406,14 @@ const en_scene::CScene& CEngine::getScene() const
 
 void CEngine::prepareInterface(SFrameRenderData& frameData)
 {
-	m_interfaceResources.updateToDelete();
 	for(auto& renderInterface : m_pInterfaceSystem->getDrawQueue())
 	{
 		if(renderInterface.m_pTexture != nullptr)
 		{
+			// Drawn again - cancel a pending deletion, otherwise it would be erased while in use.
+			m_interfaceResources.m_textureToDelete.erase(renderInterface.m_pTexture);
+			m_interfaceResources.m_bufferToDelete.erase(renderInterface.m_pGeometry);
+
 			if(auto it = m_interfaceResources.m_aInterfaceTexture.find(renderInterface.m_pTexture); it == m_interfaceResources.m_aInterfaceTexture.end())
 			{
 				auto& texture = m_interfaceResources.m_aInterfaceTexture[renderInterface.m_pTexture];
@@ -448,37 +454,23 @@ void CEngine::renderSceneFrame(bool bUpdateBufferFrame, glm::uvec2 mouseCoord)
 {
 	m_pInterfaceSystem->update();
 	m_pInterfaceSystem->render();
+	// Deferred deletion counts rendered frames, so it is ticked only here, once per frame.
+	m_interfaceResources.updateToDelete();
 	auto frameUbo = buildFrameRenderData(mouseCoord);
 
 	m_renderSystem.renderFrame(frameUbo, bUpdateBufferFrame);
 }
 
-SFrameRenderData CEngine::buildFrameRenderData(glm::uvec2 mouseCoord)
+// Camera and compute (ray pick) part of the frame data - no meshes, no interface.
+void CEngine::fillCameraData(SFrameRenderData& data, glm::uvec2 mouseCoord)
 {
 	uint32_t totalTriangles{0};
-	auto mapStatic = m_sceneComponents.getStaticMeshes();
-	auto mapAnimated = m_sceneComponents.getAnimatedMeshes();
-	auto map2d = m_sceneComponents.get2dMeshes();
-	auto map2dUI = m_sceneComponents.getUIMeshes();
-	for(auto& id : mapStatic)
+	for(auto& id : m_sceneComponents.getStaticMeshes())
 	{
 		if(auto* pMeshId = m_sceneComponents.componentManager().getComponentConst<SMeshId>(id))
-		{
-			SMeshDesc meshInfo;
-			{
-				meshInfo.model = m_sceneComponents.calculateTransformation(id);
-
-				auto mat = m_physicsEngine.getTransform(id);
-				if(mat != glm::mat4(1))
-					meshInfo.model = mat * meshInfo.model;
-				meshInfo.modelInv = glm::inverse(meshInfo.model);
-			}
 			totalTriangles += m_renderSystem.getTriangleSize(pMeshId->m_id) / 3;
-		}
 	}
 
-
-	SFrameRenderData data;
 	data.m_cameraId = m_camera_1;
 	auto* pCamera = m_sceneComponents.componentManager().getComponent<CFreeCamera>(m_camera_1);
 	auto* pCamera2 = m_sceneComponents.componentManager().getComponent<COrbitCamera>(m_camera_2);
@@ -505,6 +497,18 @@ SFrameRenderData CEngine::buildFrameRenderData(glm::uvec2 mouseCoord)
 
 	data.m_computeInfo.m_mouseCoord = mouseCoord;
 	data.m_computeInfo.m_totalTriangles = totalTriangles;
+}
+
+SFrameRenderData CEngine::buildFrameRenderData(glm::uvec2 mouseCoord)
+{
+	auto mapStatic = m_sceneComponents.getStaticMeshes();
+	auto mapAnimated = m_sceneComponents.getAnimatedMeshes();
+	auto map2d = m_sceneComponents.get2dMeshes();
+	auto map2dUI = m_sceneComponents.getUIMeshes();
+
+	SFrameRenderData data;
+	fillCameraData(data, mouseCoord);
+
 	for(auto& id1 : mapStatic)
 	{
 		if(auto* pMeshId = m_sceneComponents.componentManager().getComponentConst<SMeshId>(id1))
@@ -619,7 +623,7 @@ void SInterfaceResources::updateToDelete()
 		return false;
 	});
 
-	std::erase_if(m_buferToDelete, [&](auto& item)
+	std::erase_if(m_bufferToDelete, [&](auto& item)
 	{
 		auto& [pBuffer, counter] = item;
 
@@ -636,14 +640,16 @@ void SInterfaceResources::updateToDelete()
 	});
 }
 
+// Erased after 3 rendered frames (counter 2 -> -1) - longer than the frames in flight that may still use it.
+// try_emplace: resources are re-marked every frame, that must not restart the countdown.
 void SInterfaceResources::addTextureToDelete(void* pTexture)
 {
-	m_textureToDelete[pTexture] = 2;
+	m_textureToDelete.try_emplace(pTexture, 2);
 }
 
 void SInterfaceResources::addBufferToDelete(void* pBuffer)
 {
-	m_textureToDelete[pBuffer] = 2;
+	m_bufferToDelete.try_emplace(pBuffer, 2);
 }
 
 void SInterfaceResources::destroy()

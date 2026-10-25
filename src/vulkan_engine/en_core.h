@@ -39,7 +39,7 @@ struct SInterfaceResources
 	std::map<void*, en_vk::SDraw> m_aInterfaceDrawInfo;
 	std::map<void*, vk_structs::CDescriptorBufferResource> m_aInterfaceTextureDescriptors;
 	std::map<void*, int> m_textureToDelete;
-	std::map<void*, int> m_buferToDelete;
+	std::map<void*, int> m_bufferToDelete;
 	void updateToDelete();
 	void addTextureToDelete(void*);
 	void addBufferToDelete(void*);
@@ -72,6 +72,7 @@ private:
 	void initializeScene(const SEngineInitConfig& config);
 	void initializeRayTracing(const SEngineInitConfig& config);
 	SFrameRenderData buildFrameRenderData(glm::uvec2 mouseCoord);
+	void fillCameraData(SFrameRenderData& data, glm::uvec2 mouseCoord);
 	void setPlayerAnimation(std::string animation);
 	void initializeRenderObjects();
 	void initializePhysicsWorld();
