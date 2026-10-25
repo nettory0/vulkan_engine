@@ -320,24 +320,30 @@ void CEngine::handleKeyInput(EKey key, int scancode, int action, int mods)
 			bA = false; bD = false;
 		}
 
+		// Walk on the ground plane: only the camera yaw matters. front() includes the pitch, so with it
+		// looking down/up moved part of the speed into Y and the character walked slower.
+		const float yaw = glm::radians(pCamera->orientation().x);
+		const glm::vec3 forward{std::cos(yaw), 0.0f, std::sin(yaw)};
+		const glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
+
 		if(bW)
 		{
-			deltaMove += cameraSpeed * speed * pCamera->front();
+			deltaMove += cameraSpeed * speed * forward;
 			playerAction = {"Running"};
 		}
 		if(bS)
 		{
-			deltaMove += -cameraSpeed * speed * pCamera->front();
+			deltaMove += -cameraSpeed * speed * forward;
 			playerAction = {"Running"};
 		}
 		if(bA)
 		{
-			deltaMove += -glm::normalize(glm::cross(pCamera->front(), pCamera->up())) * speed * cameraSpeed;
+			deltaMove += -right * speed * cameraSpeed;
 			playerAction = {"Running"};
 		}
 		if(bD)
 		{
-			deltaMove += glm::normalize(glm::cross(pCamera->front(), pCamera->up())) * speed * cameraSpeed;
+			deltaMove += right * speed * cameraSpeed;
 			playerAction = {"Running"};
 		}
 

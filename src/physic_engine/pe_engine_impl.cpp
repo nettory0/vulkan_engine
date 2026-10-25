@@ -241,7 +241,11 @@ void CCharacter::jump()
 
 void CCharacter::setWalkDirection(glm::vec3 direction)
 {
-	m_direction = direction;
+	// Walking is horizontal (gravity/jump handle Y) and the speed is set in updateWalk,
+	// so keep only a unit XZ direction - any input gives the same speed.
+	direction.y = 0.0f;
+	const float len = glm::length(direction);
+	m_direction = len > 1e-6f ? direction / len : glm::vec3{0.0f};
 }
 
 void CCharacter::updateWalk()
