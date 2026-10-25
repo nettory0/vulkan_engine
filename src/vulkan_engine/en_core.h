@@ -73,7 +73,8 @@ private:
 	void initializeRayTracing(const SEngineInitConfig& config);
 	SFrameRenderData buildFrameRenderData(glm::uvec2 mouseCoord);
 	void fillCameraData(SFrameRenderData& data, glm::uvec2 mouseCoord);
-	void setPlayerAnimation(std::string animation);
+	void setPlayerAnimation(std::string animation, bool bLoop = true);
+	void updateJump(float deltaTime);
 	void initializeRenderObjects();
 	void initializePhysicsWorld();
 	void syncPlayerTransformWithPhysics();
@@ -99,4 +100,10 @@ private:
 	en_vk::CSelectSystem m_selectSystem;
 	std::unique_ptr<interface_menu::CInterfaceSystem> m_pInterfaceSystem;
 	float m_deltaOrientation{0};
+
+	// Jump state: the jump animation runs from a Space press until landing.
+	bool m_bJumping{false};
+	bool m_bJumpLeftGround{false};
+	float m_jumpTime{0.0f};
+	std::string m_moveAction{"Idle"};
 };

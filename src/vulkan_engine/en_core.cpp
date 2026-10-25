@@ -56,6 +56,9 @@ void CEngine::initializeScene(const SEngineInitConfig& config)
 
 	if(auto* pCam = m_sceneComponents.componentManager().getComponent<CFreeCamera>(m_camera_1))
 		pCam->initialize(m_physicsEngine.characterOrigin());
+
+	// The animator starts on clip 0, which can be any clip (e.g. the jump) - start explicitly from Idle.
+	setPlayerAnimation(m_moveAction);
 }
 
 void CEngine::addDefaultTexture()
@@ -226,6 +229,7 @@ void CEngine::update(float deltaTime)
 	if(m_bSimulation)
 	{
 		m_physicsEngine.stepSimulation(deltaTime);
+		updateJump(deltaTime);
 		m_animationSystem.update(deltaTime);
 		syncPlayerTransformWithPhysics();
 	}
@@ -368,30 +372,59 @@ void CEngine::handleKeyInput(EKey key, int scancode, int action, int mods)
 
 		m_physicsEngine.setWalkDirection(deltaMove);
 
-		if(!m_physicsEngine.canJump())
-			playerAction = {"Jump2"};
-		if(m_inputSystem.isKeyPressed(EKey::SPACE))// && action == GLFW_PRESS)
+		// Remembered for landing: updateJump() switches back to it when the jump ends.
+		m_moveAction = playerAction;
+
+		// The jump animation starts only on a real jump (Space on the ground) - not just because the
+		// character is in the air (e.g. falling right after spawn). It plays once, see updateJump().
+		if(m_inputSystem.isKeyPressed(EKey::SPACE) && !m_bJumping && m_physicsEngine.canJump())
 		{
-			//if(physic->canJump())
 			m_physicsEngine.jump();
+			m_bJumping = true;
+			m_bJumpLeftGround = false;
+			m_jumpTime = 0.0f;
+			setPlayerAnimation("Jump2", false);
 		}
 		pCamera->updatePos(pCamera->origin() + (deltaMove * glm::vec3(0.1)));
-		setPlayerAnimation(playerAction);
+		// Mid-jump the jump animation keeps playing; walk/run is applied after landing.
+		if(!m_bJumping)
+			setPlayerAnimation(playerAction);
 		m_deltaOrientation = deltaOrientation;
 		syncCamera();
 	}
 }
 
 
-void CEngine::setPlayerAnimation(std::string animation)
+void CEngine::setPlayerAnimation(std::string animation, bool bLoop)
 {
 	if(auto pPlayerNode = m_sceneComponents.m_player)
 	{
 		if(auto pAnimator = m_sceneComponents.componentManager().getComponentConst<std::unique_ptr<en_model::CAnimator>>(m_sceneComponents.m_scene.getChildren(pPlayerNode).front()))
 		{
 			auto& t = *pAnimator;
-			t->setActiveAnimation(animation);
+			t->setActiveAnimation(animation, bLoop);
 		}
+	}
+}
+
+// Called every simulation frame: ends the jump on landing. Key events alone can't do it -
+// there may be no key event at the moment the character touches the ground.
+void CEngine::updateJump(float deltaTime)
+{
+	if(!m_bJumping)
+		return;
+
+	m_jumpTime += deltaTime;
+	const bool bOnGround = m_physicsEngine.canJump();
+	if(!bOnGround)
+		m_bJumpLeftGround = true;
+
+	// Landed - or the jump never got off the ground (e.g. blocked by a ceiling).
+	constexpr float kTakeOffTimeout = 0.3f;
+	if(bOnGround && (m_bJumpLeftGround || m_jumpTime > kTakeOffTimeout))
+	{
+		m_bJumping = false;
+		setPlayerAnimation(m_moveAction);
 	}
 }
 

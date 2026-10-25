@@ -245,7 +245,8 @@ public:
 	CAnimator() = default;
 	CAnimator(const std::string& animationPath, std::unordered_map<std::string, SBoneInfo>& boneInfoMap, int& boneCount);
 	void updateAnimation(float dt);
-	void setActiveAnimation(std::string name);
+	// bLoop = false: play once and hold the last frame.
+	void setActiveAnimation(std::string name, bool bLoop = true);
 	void calculateBoneTransform(const glm::mat4& parentTransform, std::vector<glm::mat4>& finalBoneMatrices);
 	const std::vector<glm::mat4>& GetFinalBoneMatrices() const
 	{
@@ -257,6 +258,7 @@ public:
 	std::vector<CAnimation> m_aAnimation;
 	float m_currentTime{0.0};
 	int m_activeAnimation{0};
+	bool m_bLoop{true};
 };
 
 class CNodeMesh

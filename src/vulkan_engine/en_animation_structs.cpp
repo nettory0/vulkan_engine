@@ -11,6 +11,7 @@
 #include "en_animation_structs.h"
 #include "en_animation_load.h"
 #include <omp.h>
+#include <algorithm>
 
 namespace en_model
 {
@@ -88,13 +89,16 @@ void CAnimator::updateAnimation(float dt)
 	if(m_activeAnimation < 0 || m_activeAnimation >= (int)m_aAnimation.size())
 		return;
 	m_currentTime += m_aAnimation[m_activeAnimation].getTicksPerSecond() * dt;
-	m_currentTime = fmod(m_currentTime, m_aAnimation[m_activeAnimation].getDuration());
+	if(m_bLoop)
+		m_currentTime = fmod(m_currentTime, m_aAnimation[m_activeAnimation].getDuration());
+	else // play once and hold the last frame
+		m_currentTime = std::min(m_currentTime, m_aAnimation[m_activeAnimation].getDuration());
 	for(auto& [name, bone] : m_aAnimation[m_activeAnimation].getBoneMap())
 		bone.update(m_currentTime);
 	m_aAnimation[m_activeAnimation].calculateBoneTransform(glm::mat4(1.0f), m_finalBoneMatrices);
 }
 
-void CAnimator::setActiveAnimation(std::string name)
+void CAnimator::setActiveAnimation(std::string name, bool bLoop)
 {
 	if(m_activeAnimation > -1 && m_activeAnimation < (int)m_aAnimation.size()
 	   && m_aAnimation[m_activeAnimation].m_animationName == name)
@@ -108,6 +112,7 @@ void CAnimator::setActiveAnimation(std::string name)
 		{
 			m_activeAnimation = counter;
 			m_currentTime = 0;
+			m_bLoop = bLoop;
 			break;
 		}
 		counter++;
@@ -146,12 +151,13 @@ int CBone::getPositionIndex(float animationTime)
 		if(animationTime < pos.timeStamp)
 		{
 			if(counter == 0)
-				return m_positions.size() - 1;
+				return 0; // before the first key: use the first key
 			return counter - 1;
 		}
 		counter++;
 	}
-	return 0;
+	// Past the last key: stay on it (returning 0 snapped the pose back to the first frame).
+	return static_cast<int>(m_positions.size()) - 1;
 }
 
 int CBone::getRotationIndex(float animationTime)
@@ -162,12 +168,13 @@ int CBone::getRotationIndex(float animationTime)
 		if(animationTime < rotation.timeStamp)
 		{
 			if(counter == 0)
-				return m_rotations.size() - 1;
+				return 0; // before the first key: use the first key
 			return counter - 1;
 		}
 		counter++;
 	}
-	return 0;
+	// Past the last key: stay on it (returning 0 snapped the pose back to the first frame).
+	return static_cast<int>(m_rotations.size()) - 1;
 }
 
 int CBone::getScaleIndex(float animationTime)
@@ -178,17 +185,19 @@ int CBone::getScaleIndex(float animationTime)
 		if(animationTime < scale.timeStamp)
 		{
 			if(counter == 0)
-				return m_scales.size() - 1;
+				return 0; // before the first key: use the first key
 			return counter - 1;
 		}
 		counter++;
 	}
-	return 0;
+	// Past the last key: stay on it (returning 0 snapped the pose back to the first frame).
+	return static_cast<int>(m_scales.size()) - 1;
 }
 
 float CBone::getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)
 {
-	return (animationTime - lastTimeStamp) / (nextTimeStamp - lastTimeStamp);
+	// Clamped: outside the key range the pose stays on the nearest key instead of extrapolating.
+	return glm::clamp((animationTime - lastTimeStamp) / (nextTimeStamp - lastTimeStamp), 0.0f, 1.0f);
 }
 
 glm::mat4 CBone::interpolateTranslation(float animationTime)
@@ -198,6 +207,8 @@ glm::mat4 CBone::interpolateTranslation(float animationTime)
 
 	const int p0Index = getPositionIndex(animationTime);
 	const int p1Index = p0Index == (m_positions.size() - 1) ? 0 : p0Index + 1;
+	if(p0Index == static_cast<int>(m_positions.size()) - 1)
+		return glm::translate(glm::mat4(1.0f), m_positions[p0Index].position);
 	auto& pos = m_positions[p0Index];
 	auto& pos1 = m_positions[p1Index];
 	const float scaleFactor = getScaleFactor(pos.timeStamp, pos1.timeStamp, animationTime);
@@ -211,6 +222,8 @@ glm::mat4 CBone::interpolateRotation(float animationTime)
 
 	const int p0Index = getRotationIndex(animationTime);
 	const int p1Index = p0Index == (m_rotations.size() - 1) ? 0 : p0Index + 1;
+	if(p0Index == static_cast<int>(m_rotations.size()) - 1)
+		return glm::toMat4(glm::normalize(m_rotations[p0Index].orientation));
 	auto& rot = m_rotations[p0Index];
 	auto& rot1 = m_rotations[p1Index];
 	const float scaleFactor = getScaleFactor(rot.timeStamp, rot1.timeStamp, animationTime);
@@ -224,6 +237,8 @@ glm::mat4 CBone::interpolateScaling(float animationTime)
 
 	const int p0Index = getScaleIndex(animationTime);
 	const int p1Index = p0Index == (m_scales.size() - 1) ? 0 : p0Index + 1;
+	if(p0Index == static_cast<int>(m_scales.size()) - 1)
+		return glm::scale(glm::mat4(1.0f), m_scales[p0Index].scale);
 	auto& scale = m_scales[p0Index];
 	auto& scale1 = m_scales[p1Index];
 	const float scaleFactor = getScaleFactor(scale.timeStamp, scale1.timeStamp, animationTime);
