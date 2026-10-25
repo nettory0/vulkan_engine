@@ -4,7 +4,7 @@
 #include "vk_objects.h"
 #include "en_graphics_pipeline.h"
 #include "en_common_utils.h"
-#include "en_gl_utils.h"
+#include "en_utils.h"
 
 namespace en_model
 {

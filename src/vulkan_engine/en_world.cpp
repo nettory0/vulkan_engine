@@ -14,7 +14,7 @@
 #include "tg_mesh.h"
 #include "co_geom_primitives.h"
 
-#include "en_gl_descriptor_manager.h"
+#include "en_descriptor_manager.h"
 #include "en_models_path.h"
 #include "co_structs.h"
 

@@ -22,7 +22,7 @@
 #include <map>
 #include <iostream>
 #include <vector>
-#include "en_gl_draw_object.h"
+#include "en_draw_object.h"
 #include "pe_physic_engine.h"
 #include "asset_loader.h"
 #include "co_structs.h"

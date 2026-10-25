@@ -1,7 +1,7 @@
 #include <tuple>
-#include "en_gl_context.h"
-#include "en_gl_descriptor_manager.h"
-#include "en_gl_utils.h"
+#include "en_context.h"
+#include "en_descriptor_manager.h"
+#include "en_utils.h"
 #include "en_animation_structs.h"
 #include <format>
 #include "co_logging.h"

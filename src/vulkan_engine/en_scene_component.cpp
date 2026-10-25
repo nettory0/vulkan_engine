@@ -1,5 +1,5 @@
 #include "en_scene_component.h"
-#include "en_gl_descriptor_manager.h"
+#include "en_descriptor_manager.h"
 #include <ranges>
 #include "co_structs.h"
 #include "co_geom_primitives.h"

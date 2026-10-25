@@ -1,5 +1,5 @@
 #include "en_compute_system.h"
-#include "en_gl_descriptor_manager.h"
+#include "en_descriptor_manager.h"
 
 namespace en_vk
 {

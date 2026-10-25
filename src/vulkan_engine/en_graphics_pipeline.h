@@ -2,7 +2,7 @@
 #include <array>
 #include <unordered_map>
 #include "vk_objects.h"
-#include "en_gl_utils.h"
+#include "en_utils.h"
 
 namespace en_vk
 {

@@ -7,7 +7,7 @@
 #include <QWindow>
 #include <QVulkanInstance>
 #include "en_core.h"
-#include "en_gl_camera.h"
+#include "en_camera.h"
 #include <QTimer>
 
 QT_FORWARD_DECLARE_CLASS(QTabWidget)

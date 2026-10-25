@@ -5,7 +5,7 @@
 #include <map>
 #include "vk_objects.h"
 #include "co_geom_primitives.h"
-#include "en_gl_utils.h"
+#include "en_utils.h"
 #include "pe_physic_engine.h"
 
 namespace en_vk_draw

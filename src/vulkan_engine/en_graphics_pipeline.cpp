@@ -1,8 +1,8 @@
 #include "en_graphics_pipeline.h"
 #include "co_geom_primitives.h"
-#include "en_gl_utils.h"
+#include "en_utils.h"
 #include "en_animation_structs.h"
-#include "en_gl_descriptor_manager.h"
+#include "en_descriptor_manager.h"
 
 namespace en_vk
 {

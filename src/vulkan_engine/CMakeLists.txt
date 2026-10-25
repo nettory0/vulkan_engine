@@ -52,18 +52,18 @@ add_library(vulkan_engine SHARED
     en_animation_structs.cpp
     en_animation_structs.h
     en_graphics_pipeline.h
-    en_gl_camera.cpp
-    en_gl_camera.h
-    en_gl_context.cpp
-    en_gl_context.h
-    en_gl_descriptor_manager.cpp
-    en_gl_descriptor_manager.h
-    en_gl_draw_object.cpp
-    en_gl_draw_object.h
+    en_camera.cpp
+    en_camera.h
+    en_context.cpp
+    en_context.h
+    en_descriptor_manager.cpp
+    en_descriptor_manager.h
+    en_draw_object.cpp
+    en_draw_object.h
     en_core.cpp
     en_core.h
-    en_gl_utils.cpp
-    en_gl_utils.h
+    en_utils.cpp
+    en_utils.h
     en_common_utils.h
     en_render_resource.h
     en_render_resource.cpp

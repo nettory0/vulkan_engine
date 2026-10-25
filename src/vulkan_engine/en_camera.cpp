@@ -1,4 +1,4 @@
-#include "en_gl_camera.h"
+#include "en_camera.h"
 #include <glm/gtx/quaternion.hpp>
 #include "pe_physic_engine.h"
 

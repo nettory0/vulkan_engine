@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 #include <SDL3/SDL.h>
-#include "en_gl_camera.h"
+#include "en_camera.h"
 #include "en_core.h"
 
 class CGlWindow

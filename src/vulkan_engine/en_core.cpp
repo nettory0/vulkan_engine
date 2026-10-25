@@ -14,7 +14,7 @@
 #include "interface_system.h"
 #include "tg_mesh.h"
 #include "co_geom_primitives.h"
-#include "en_gl_descriptor_manager.h"
+#include "en_descriptor_manager.h"
 #include "vk_struct_builders.h"
 #include "co_structs.h"
 #include "co_logging.h"

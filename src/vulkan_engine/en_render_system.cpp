@@ -1,9 +1,9 @@
 #include "en_render_system.h"
 #include <stdexcept>
-#include "en_gl_utils.h"
-#include "en_gl_draw_object.h"
+#include "en_utils.h"
+#include "en_draw_object.h"
 #include "en_animation_structs.h"
-#include "en_gl_descriptor_manager.h"
+#include "en_descriptor_manager.h"
 
 constexpr auto bufferCreateUsage{VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT};
 constexpr auto bufferCreateUsage2{VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_2_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR};

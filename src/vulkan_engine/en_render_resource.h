@@ -1,9 +1,9 @@
 #pragma once
 #include "vk_base.h"
 #include "en_graphics_pipeline.h"
-#include "en_gl_context.h"
-#include "en_gl_descriptor_manager.h"
-#include "en_gl_draw_object.h"
+#include "en_context.h"
+#include "en_descriptor_manager.h"
+#include "en_draw_object.h"
 #include "en_common_utils.h"
 
 namespace en_model
