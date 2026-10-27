@@ -21,7 +21,8 @@ public:
 	// Distance per fixed simulation tick (1/60 s).
 	virtual void setWalkSpeed(float speed) = 0;
 	virtual bool canJump() = 0;
-	virtual void jump() = 0;
+	// speedFactor scales the base jump speed (1 = normal jump).
+	virtual void jump(float speedFactor) = 0;
 	virtual void updateRotation(glm::mat4 mat) = 0;
 	virtual void addSphereObj(uint64_t entity, glm::vec3 origin, float mass, float radius) = 0;
 	virtual void addCubeObj(uint64_t entity, glm::vec3 origin, float mass, glm::vec3 boxSize) = 0;

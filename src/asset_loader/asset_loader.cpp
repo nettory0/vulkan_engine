@@ -46,12 +46,10 @@ SReadResult CAssetLoader::load2()
 			result.m_aPlayer = readNode(it->second);
 	}
 
-	YAML::Node primitiveSet = root["primitiveSet"];
-
-	for(auto it = primitiveSet.begin(); it != primitiveSet.end(); ++it)
+	if(YAML::Node primitiveSet = root["primitiveSet"])
 	{
-		std::string key = it->first.as<std::string>();
-		std::string value = it->second.as<std::string>();
+		for(auto it = primitiveSet.begin(); it != primitiveSet.end(); ++it)
+			result.m_aPrimitive.push_back(readPrimitive(it->second));
 	}
 	return result;
 }
@@ -127,6 +125,30 @@ SLoadModel CAssetLoader::readNode(const YAML::Node& node)
 		model.m_rotate = readVec4(nodeRotate);
 
 	return model;
+}
+
+SLoadPrimitive CAssetLoader::readPrimitive(const YAML::Node& node)
+{
+	SLoadPrimitive primitive;
+
+	const std::string type = node["type"].as<std::string>("cube");
+	if(type == "sphere")
+		primitive.m_type = EPrimitiveType::eSphere;
+	else if(type == "cube")
+		primitive.m_type = EPrimitiveType::eCube;
+	else
+		std::cerr << "Unknown primitive type: " << type << ", using cube\n";
+
+	if(auto nodePosition = node["position"]; nodePosition && nodePosition.IsSequence() && nodePosition.size() == 3)
+		primitive.m_position = readVec3(nodePosition);
+
+	if(auto nodeSize = node["size"]; nodeSize && nodeSize.IsSequence() && nodeSize.size() == 3)
+		primitive.m_size = readVec3(nodeSize);
+
+	primitive.m_radius = node["radius"].as<float>(primitive.m_radius);
+	primitive.m_mass = node["mass"].as<float>(primitive.m_mass);
+
+	return primitive;
 }
 
 }

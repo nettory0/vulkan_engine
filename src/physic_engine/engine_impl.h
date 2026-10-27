@@ -37,7 +37,7 @@ public:
 	~CCharacter();
 	bool canJump() const;
 	void setJumpSpeed(float speed);
-	void jump();
+	void jump(float speedFactor);
 	void setWalkDirection(glm::vec3 direction);
 	void setWalkSpeed(float speed);
 	void updateWalk();
@@ -79,7 +79,7 @@ public:
 	void setWalkDirection(glm::vec3 dir) override final;
 	void setWalkSpeed(float speed) override final;
 	bool canJump() override final;
-	void jump() override final;
+	void jump(float speedFactor) override final;
 	void updateRotation(glm::mat4 mat) override final;
 	void addSphereObj(uint64_t entity, glm::vec3 origin, float mass, float radius) override final;
 	void addCubeObj(uint64_t entity, glm::vec3 origin, float mass, glm::vec3 boxSize) override final;

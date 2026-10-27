@@ -74,6 +74,7 @@ private:
 	SFrameRenderData buildFrameRenderData(glm::uvec2 mouseCoord);
 	void fillCameraData(SFrameRenderData& data, glm::uvec2 mouseCoord);
 	void setPlayerAnimation(std::string animation, bool bLoop = true);
+	bool isPlayerAnimationFinished();
 	void updateJump(float deltaTime);
 	void initializeRenderObjects();
 	void initializePhysicsWorld();
@@ -101,9 +102,11 @@ private:
 	std::unique_ptr<interface_menu::CInterfaceSystem> m_pInterfaceSystem;
 	float m_deltaOrientation{0};
 
-	// Jump state: the jump animation runs from a Space press until landing.
+	// Jump state: the jump animation plays once from a Space press; if the character is still
+	// in the air when it ends, the regular move animation takes over until landing.
 	bool m_bJumping{false};
 	bool m_bJumpLeftGround{false};
+	bool m_bJumpAnimDone{false};
 	bool m_bJumpKeyLatched{false}; // Space was already down on the previous key event
 	float m_jumpTime{0.0f};
 	std::string m_moveAction{"Idle"};

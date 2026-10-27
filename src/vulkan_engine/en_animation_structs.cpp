@@ -98,6 +98,13 @@ void CAnimator::updateAnimation(float dt)
 	m_aAnimation[m_activeAnimation].calculateBoneTransform(glm::mat4(1.0f), m_finalBoneMatrices);
 }
 
+bool CAnimator::isFinished() const
+{
+	if(m_bLoop || m_activeAnimation < 0 || m_activeAnimation >= (int)m_aAnimation.size())
+		return false;
+	return m_currentTime >= m_aAnimation[m_activeAnimation].getDuration();
+}
+
 void CAnimator::setActiveAnimation(std::string name, bool bLoop)
 {
 	if(m_activeAnimation > -1 && m_activeAnimation < (int)m_aAnimation.size()

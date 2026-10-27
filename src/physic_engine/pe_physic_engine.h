@@ -26,7 +26,7 @@ public:
 	// Distance per fixed simulation tick (1/60 s).
 	void setWalkSpeed(float speed);
 	bool canJump();
-	void jump();
+	void jump(float speedFactor = 1.0f);
 	void updateRotation(glm::mat4 mat);
 	void addSphereCollider(uint64_t entity, glm::vec3 origin, float mass, float radius);
 	void addBoxCollider(uint64_t entity, glm::vec3 origin, float mass, glm::vec3 boxSize);

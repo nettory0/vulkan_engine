@@ -6,6 +6,7 @@ namespace physic_en
 namespace
 {
 constexpr float kGravityY = -9.8f;
+constexpr float kJumpSpeed = 3.1f;
 }
 
 CEngineImpl::CEngineImpl()
@@ -199,10 +200,10 @@ bool CEngineImpl::canJump()
 	return false;
 }
 
-void CEngineImpl::jump()
+void CEngineImpl::jump(float speedFactor)
 {
 	if(m_pCharacter)
-		m_pCharacter->jump();
+		m_pCharacter->jump(speedFactor);
 }
 
 void CEngineImpl::updateRotation(glm::mat4 mat)
@@ -240,9 +241,10 @@ void CCharacter::setJumpSpeed(float speed)
 	m_pKinematicCharacter->setJumpSpeed(speed);
 }
 
-void CCharacter::jump()
+void CCharacter::jump(float speedFactor)
 {
-	m_pKinematicCharacter->jump();
+	// A non-zero vector sets both the jump direction and its speed for this jump only.
+	m_pKinematicCharacter->jump(btVector3(0, kJumpSpeed * speedFactor, 0));
 }
 
 void CCharacter::setWalkDirection(glm::vec3 direction)
@@ -303,7 +305,7 @@ void CCharacter::create()
 	// Match the dynamics world's gravity (see CEngineImpl::init) so the
 	// character falls at the same rate as everything else in the world.
 	kinematicCharacter()->setGravity(btVector3(0, kGravityY, 0));
-	setJumpSpeed(3.1);
+	setJumpSpeed(kJumpSpeed);
 }
 
 btPairCachingGhostObject* CCharacter::getGhostObject()

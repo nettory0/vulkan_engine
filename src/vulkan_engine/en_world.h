@@ -33,7 +33,7 @@ private:
 	void initDrawElements2d();
 	void addWord(uint64_t pNodeParent, float fontHeight, std::string word, glm::vec3 color, glm::vec3 offset);
 	void addInitPlayer(const asset::SLoadModel& playerModel);
-	void addCubes();
+	void addPrimitives(const std::vector<asset::SLoadPrimitive>& aPrimitives);
 	void addSkybox(vk_structs::CUniformBase* textureDefault);
 	void addModelsLevel(const std::vector<asset::SLoadModel>& aModels);
 	void addModelsAnimated(const std::vector<asset::SLoadModel>& aModels);

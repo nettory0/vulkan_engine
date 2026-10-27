@@ -67,12 +67,22 @@ void CWorld::spawnPlayer(const asset::SLoadModel& playerModel)
 
 }
 
-void CWorld::addCubes()
+void CWorld::addPrimitives(const std::vector<asset::SLoadPrimitive>& aPrimitives)
 {
 	auto root = m_scene.m_scene.root();
 
-	m_scene.addCube(root, glm::vec3(glm::vec3(0, 0, 0)), 0, {15, 1, 15});
-	m_scene.addCube(root, glm::vec3(glm::vec3(31, 0, 0)), 0, {15, 1, 15});
+	for(const auto& primitive : aPrimitives)
+	{
+		switch(primitive.m_type)
+		{
+			case asset::EPrimitiveType::eCube:
+				m_scene.addCube(root, primitive.m_position, primitive.m_mass, primitive.m_size);
+				break;
+			case asset::EPrimitiveType::eSphere:
+				m_scene.addSphere(root, primitive.m_position, primitive.m_mass, primitive.m_radius);
+				break;
+		}
+	}
 }
 
 void CWorld::addModelsAnimated(const std::vector<asset::SLoadModel>& aModels)
@@ -114,8 +124,7 @@ void CWorld::initDrawElements3d()
 	addModelsLevel(aAnimatedModel.m_aLevel);
 	//addSkybox(inTextureFloor, size);
 	addInitPlayer(aAnimatedModel.m_aPlayer);
-	addCubes();
-	m_scene.addSphere(m_scene.m_scene.root(), {1.0f, 10.0f, 1.0f}, 0, 1.5);
+	addPrimitives(aAnimatedModel.m_aPrimitive);
 }
 
 uint64_t CWorld::addModel(uint64_t pNodeParent, asset::SLoadModel modelPath1, bool bLevel, bool bAnimated)

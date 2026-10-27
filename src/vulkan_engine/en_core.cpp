@@ -382,19 +382,33 @@ void CEngine::handleKeyInput(EKey key, int scancode, int action, int mods)
 		// Remembered for landing: updateJump() switches back to it when the jump ends.
 		m_moveAction = playerAction;
 
+		// Ctrl held: 5x jump speed, and jumps are also allowed in the air (see below).
+		constexpr float kCtrlJumpFactor = 5.0f;
+		const bool bCtrl = m_inputSystem.isKeyPressed(EKey::LEFT_CTRL);
+		const float jumpFactor = bCtrl ? kCtrlJumpFactor : 1.0f;
+
 		// The jump animation starts only on a real jump (Space on the ground) - not just because the
 		// character is in the air (e.g. falling right after spawn). It plays once, see updateJump().
 		if(bSpacePressedNow && !m_bJumping && m_physicsEngine.canJump())
 		{
-			m_physicsEngine.jump();
+			m_physicsEngine.jump(jumpFactor);
 			m_bJumping = true;
 			m_bJumpLeftGround = false;
+			m_bJumpAnimDone = false;
 			m_jumpTime = 0.0f;
 			setPlayerAnimation("Jump2", false);
 		}
+		// Infinite jumps: while Ctrl is held during a jump, every Space press jumps again in the air.
+		// Bullet's jump() just sets the vertical speed, so it works without ground contact.
+		else if(bSpacePressedNow && m_bJumping && bCtrl)
+		{
+			m_physicsEngine.jump(jumpFactor);
+			m_bJumpAnimDone = false;
+			setPlayerAnimation("Jump2", false);
+		}
 		pCamera->updatePos(pCamera->origin() + (deltaMove * glm::vec3(0.1)));
-		// Mid-jump the jump animation keeps playing; walk/run is applied after landing.
-		if(!m_bJumping)
+		// While the jump animation plays it is not interrupted; walk/run is applied after it ends.
+		if(!m_bJumping || m_bJumpAnimDone)
 			setPlayerAnimation(playerAction);
 		m_deltaOrientation = deltaOrientation;
 		syncCamera();
@@ -414,6 +428,16 @@ void CEngine::setPlayerAnimation(std::string animation, bool bLoop)
 	}
 }
 
+bool CEngine::isPlayerAnimationFinished()
+{
+	if(auto pPlayerNode = m_sceneComponents.m_player)
+	{
+		if(auto pAnimator = m_sceneComponents.componentManager().getComponentConst<std::unique_ptr<en_model::CAnimator>>(m_sceneComponents.m_scene.getChildren(pPlayerNode).front()))
+			return (*pAnimator)->isFinished();
+	}
+	return false;
+}
+
 // Called every simulation frame: ends the jump on landing. Key events alone can't do it -
 // there may be no key event at the moment the character touches the ground.
 void CEngine::updateJump(float deltaTime)
@@ -431,6 +455,15 @@ void CEngine::updateJump(float deltaTime)
 	if(bOnGround && (m_bJumpLeftGround || m_jumpTime > kTakeOffTimeout))
 	{
 		m_bJumping = false;
+		setPlayerAnimation(m_moveAction);
+		return;
+	}
+
+	// The jump clip has ended but the character is still in the air (long or Ctrl jumps):
+	// don't hold its last frame, switch to the regular move animation.
+	if(!m_bJumpAnimDone && isPlayerAnimationFinished())
+	{
+		m_bJumpAnimDone = true;
 		setPlayerAnimation(m_moveAction);
 	}
 }

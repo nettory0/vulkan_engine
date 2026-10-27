@@ -247,6 +247,8 @@ public:
 	void updateAnimation(float dt);
 	// bLoop = false: play once and hold the last frame.
 	void setActiveAnimation(std::string name, bool bLoop = true);
+	// True when a play-once animation has reached its last frame.
+	bool isFinished() const;
 	void calculateBoneTransform(const glm::mat4& parentTransform, std::vector<glm::mat4>& finalBoneMatrices);
 	const std::vector<glm::mat4>& GetFinalBoneMatrices() const
 	{

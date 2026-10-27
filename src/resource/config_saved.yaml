@@ -18,7 +18,27 @@ root:
         - 1.0
         - 0.0
         - 90.0
+  modelLevel:
+    arena:
+      path: models/assets/arena/arena.gltf
+      texture:
+        - "default"
+      position: [0.0, 0.0, 0.0]
+      scale: [2.0, 2.0, 2.0]
+      rotate: [0.0, 1.0, 0.0, 0.0]
   primitiveSet:
-    nodeA1: value5
-    nodeA2: value6
-    nodeA3: value7
+    floor1:
+      type: cube
+      position: [0.0, 35.0, 0.0]
+      size: [15.0, 1.0, 15.0]
+      mass: 0.0
+    floor2:
+      type: cube
+      position: [31.0, 35.0, 0.0]
+      size: [15.0, 1.0, 15.0]
+      mass: 0.0
+    sphere1:
+      type: sphere
+      position: [1.0, 37.5, 1.0]
+      radius: 1.5
+      mass: 0.0

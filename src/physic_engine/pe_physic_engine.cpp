@@ -77,10 +77,10 @@ bool CPhysicsEngine::canJump()
 	return false;
 }
 
-void CPhysicsEngine::jump()
+void CPhysicsEngine::jump(float speedFactor)
 {
 	if(m_pEngine)
-		m_pEngine->jump();
+		m_pEngine->jump(speedFactor);
 }
 
 void CPhysicsEngine::updateRotation(glm::mat4 mat)
